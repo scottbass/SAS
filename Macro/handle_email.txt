@@ -1,0 +1,18 @@
+Dear &firstname,
+
+Your SAS process with the Process ID &pid was locking SAS datasets which require updating during the Acme daily processing.
+
+The file locks on these SAS datasets have been removed so that the Acme daily processing could complete successfully.
+
+You should not have lost any work.  
+
+If your SAS session was an Enterprise Guide session, you should save your project, then restart Enterprise Guide.
+
+If your SAS session was a Base SAS session, you should save all your open program editor sessions, then restart your Base SAS Session.
+
+Your SAS session will be in an unstable state.  You should save your work and restart SAS as soon as possible.  Do not continue to use that SAS session.
+
+If you have any questions, please contact someone in the Acme Support Team.
+
+Regards,
+Acme Support Team
