@@ -15,7 +15,7 @@ Program Version #       : 1.0
 
 =======================================================================
 
-Modification History    : Original version
+Modification History    : 
 
 =====================================================================*/
 
@@ -1521,7 +1521,6 @@ run;
 %if (%sysfunc(fileref(_code_)) le 0) %then %do;
    /* filename _code_ clear; */
 %end;
-%* if (&parmerr) %then %abort;
 
 %mend;
 

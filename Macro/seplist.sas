@@ -175,7 +175,6 @@ Notes:
 %unquote(&emit)
 
 %quit:
-%* if (&parmerr) %then %abort;
 
 %mend;
 

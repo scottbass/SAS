@@ -126,6 +126,5 @@ Set SYSRC=1 to indicate macro variable not found.
 %let sysrc=%eval(%bquote(&name)=);
 
 %quit:
-%* if (&parmerr) %then %abort;
 
 %mend;

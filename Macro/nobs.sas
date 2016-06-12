@@ -14,7 +14,12 @@ Program Version #       : 1.0
 
 =======================================================================
 
-Modification History    : Original version
+Modification History    :
+
+Programmer              : Scott Bass
+Date                    : 27MAY2015
+Change/reason           : Added format=32. to select statement
+Program Version #       : 1.1
 
 =====================================================================*/
 
@@ -210,7 +215,7 @@ If mvar is blank set it to "nobs"
       %let &mvar = ;
    %end;
    proc sql noprint;
-      select count(*) into :&mvar separated by " " from &data;
+      select count(*) format=32. into :&mvar separated by " " from &data;
    quit;
 %end;
 %else %do;
@@ -227,7 +232,6 @@ If mvar is specified then also return global macro variable
 %end;
 
 %quit:
-%* if (&parmerr) %then %abort;
 
 %mend;
 

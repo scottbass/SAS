@@ -14,7 +14,7 @@ Program Version #       : 1.0
 
 =======================================================================
 
-Modification History    : Original version
+Modification History    : 
 
 =====================================================================*/
 
@@ -94,7 +94,6 @@ other variable information and CLOSE functions.
 %end;
 
 %quit:
-%* if (&parmerr) %then %abort;
 
 %mend;
 

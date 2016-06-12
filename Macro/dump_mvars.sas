@@ -203,7 +203,6 @@ Dumps macro variables to the log.
 %put &line;
 
 %quit:
-%* if (&parmerr) %then %abort;
 
 %mend;
 

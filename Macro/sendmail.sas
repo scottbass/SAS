@@ -41,8 +41,8 @@ data mail;
 run;
 
 %sendmail(
-  to=&sysuserid
-  ,subject=%str(This is the subject as of &sysdate and &systime)
+   to=&sysuserid
+   ,subject=%str(This is the subject as of &sysdate and &systime)
 )
 
 =======================================================================
@@ -74,9 +74,9 @@ run;
 
 * send a "subject only" email without any email message ;
 %sendmail(
-  metadata=_null_
-  ,to=&sysuserid
-  ,subject=%str(This is the subject as of &sysdate and &systime)
+   metadata=_null_
+   ,to=&sysuserid
+   ,subject=%str(This is the subject as of &sysdate and &systime)
 )
 
 -----------------------------------------------------------------------
@@ -147,32 +147,32 @@ Macro to send an email using a metadata dataset
 %* overwriting any parameters passed in as macro parameters ;
 %let options=%sysfunc(getoption(serror));
 %if (&metadata_exists) %then %do;
-  options noserror;
-  data _null_;
-     set &metadata end=eof;
-     where parm is not missing;
-     length to cc bcc attach $10000;  /* adjust length as desired, but make long enough for resolved values */
-     retain to cc bcc attach;
-     select(upcase(parm));
-        when("TO")     to       = catx("^",to,       line);
-        when("CC")     cc       = catx("^",cc,       line);
-        when("BCC")    bcc      = catx("^",bcc,      line);
-        when("ATTACH") attach   = catx("^",attach,   line);
-        when("FROM","REPLYTO","SUBJECT","CONTENT_TYPE","ENCODING")
-           call symputx(parm,line);
-        otherwise do;
-           put "ERR" "OR: " parm "is an invalid parameter.";
-           call symputx("parmerr",1);
-           stop;
-        end;
-     end;
-     if eof then do;
-        if length(to)     then call symputx("TO",     to);
-        if length(cc)     then call symputx("CC",     cc);
-        if length(bcc)    then call symputx("BCC",    bcc);
-        if length(attach) then call symputx("ATTACH", attach);
-     end;
-  run;
+   options noserror;
+   data _null_;
+      set &metadata end=eof;
+      where parm is not missing;
+      length to cc bcc attach $10000;  /* adjust length as desired, but make long enough for resolved values */
+      retain to cc bcc attach;
+      select(upcase(parm));
+         when("TO")     to       = catx("^",to,       line);
+         when("CC")     cc       = catx("^",cc,       line);
+         when("BCC")    bcc      = catx("^",bcc,      line);
+         when("ATTACH") attach   = catx("^",attach,   line);
+         when("FROM","REPLYTO","SUBJECT","CONTENT_TYPE","ENCODING")
+            call symputx(parm,line);
+         otherwise do;
+            put "ERR" "OR: " parm "is an invalid parameter.";
+            call symputx("parmerr",1);
+            stop;
+         end;
+      end;
+      if eof then do;
+         if length(to)     then call symputx("TO",     to);
+         if length(cc)     then call symputx("CC",     cc);
+         if length(bcc)    then call symputx("BCC",    bcc);
+         if length(attach) then call symputx("ATTACH", attach);
+      end;
+   run;
 %end;
 
 %if (&parmerr) %then %goto quit;
@@ -239,6 +239,7 @@ filename email clear;
 options &options;
 
 %quit:
+
 %mend;
 
 /******* END OF FILE *******/

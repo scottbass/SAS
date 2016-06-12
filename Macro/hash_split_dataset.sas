@@ -14,7 +14,7 @@ Program Version #       : 1.0
 
 ======================================================================
 
-Modification History    : Original version
+Modification History    : 
 
 +===================================================================*/
 
@@ -113,8 +113,9 @@ Use hash object to split dataset into multiple datasets
 %* create sorted view of input dataset ;
 proc sql noprint;
    create view _sorted_ as
-      select * from &data order by &by
-   ;
+   select * 
+   from &data 
+   order by &by;
 quit;
 
 %* use a hash object to split a dataset based on the grouping variable ;
@@ -140,7 +141,6 @@ run;
 %kill(delete=_sorted_)
 
 %quit:
-%* if (&parmerr) %then %abort;
 
 %mend;
 

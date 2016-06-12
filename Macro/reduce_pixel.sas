@@ -16,7 +16,7 @@ Program Version #       : 1.0
 
 =======================================================================
 
-Modification History    : Original version
+Modification History    : 
 
 Programmer              : Scott Bass
 Date                    : 24SEP2013
@@ -32,18 +32,18 @@ Usage:
 libname mapsspde spde "%sysfunc(pathname(work))" temp=yes;
 
 proc copy in=mapssas out=mapsspde;
-  select world china us;
+   select world china us;
 run;
 
 %macro map(data=, id=, x=, y=, title=);
-  %reduce_pixel(inmap=&data, outmap=mapsspde.mymap, id=&id, xpix=&x, ypix=&y);
-  title  "&title Map with &x x &y reduction";
-  title2 "%trim(%left(%nobs(&syslast))) obs";
-  proc gmap data=mapsspde.mymap map=mapsspde.mymap;
-    id &id;
-    choro %scan(&id,1,%str( )) / nolegend statistic=first;
-  run;
-  quit;
+   %reduce_pixel(inmap=&data, outmap=mapsspde.mymap, id=&id, xpix=&x, ypix=&y);
+   title  "&title Map with &x x &y reduction";
+   title2 "%trim(%left(%nobs(&syslast))) obs";
+   proc gmap data=mapsspde.mymap map=mapsspde.mymap;
+      id &id;
+      choro %scan(&id,1,%str( )) / nolegend statistic=first;
+   run;
+   quit;
 %mend;
 
 %map(data=mapsspde.world, id=cont id, x=1920, y=1080, title=World);
@@ -62,7 +62,7 @@ run;
 %map(data=mapsspde.us,    id=state,   x= 400, y= 300, title=US);
 
 proc copy in=mapsgfk out=mapsspde;
-  select world china us;
+   select world china us;
 run;
 
 * <repeat above code > ;
@@ -108,8 +108,8 @@ Macro to reduce a map based on the pixel size of the output.
 
 /* Get the X/Y extents of the map data */
 proc summary data=&inmap;
-  var x y;
-  output out=t min(x)=xmin max(x)=xmax min(y)=ymin max(y)=ymax;
+   var x y;
+   output out=t min(x)=xmin max(x)=xmax min(y)=ymin max(y)=ymax;
 run;
 
 /*
@@ -120,13 +120,13 @@ United Kingdom will be constrained in the Y before the X, whereas a map
 of Russia will be constrained in the X before the Y.
 */
 data _null_;
-  set t;
-  xpix=&xpix;
-  ypix=&ypix;
-  mult=&mult;
+   set t;
+   xpix=&xpix;
+   ypix=&ypix;
+   mult=&mult;
 
-  pixscale=ypix/xpix;
-  mapscale=(ymax-ymin)/(xmax-xmin);
+   pixscale=ypix/xpix;
+   mapscale=(ymax-ymin)/(xmax-xmin);
 
 /*
 Set a macro variable to the range that is going to be the constraint
@@ -134,13 +134,13 @@ for the map (X or Y).  The formula is maprange/pixelrange for the
 particular ordinate values.
 */
 
-  if (pixscale > mapscale) then
-    range=(xmax-xmin)/xpix;
-  else
-    range=(ymax-ymin)/ypix;
-  range=range/mult;
-  call symputx("range",put(range,f12.7-L));
-  stop;
+   if (pixscale > mapscale) then
+      range=(xmax-xmin)/xpix;
+   else
+      range=(ymax-ymin)/ypix;
+   range=range/mult;
+   call symputx("range",put(range,f12.7-L));
+   stop;
 run;
 
 /*
@@ -151,7 +151,7 @@ or 1 DENSITY (defined as being farther apart than the E1 value) will be
 acceptable for our output.
 */
 proc greduce data=&inmap out=&outmap e1=&range;
-  id &id;
+   id &id;
 run;
 
 /*
@@ -159,7 +159,7 @@ Make sure the data is sorted so that we can use BY-group processing to
 remove extraneous points and no-area polygons (1- and 2-point polygons)
 */
 proc sort data=&outmap;
-  by &id segment;
+   by &id segment;
 run;
 
 /*
@@ -168,13 +168,13 @@ Remove extra data from the map:
    2.  Any polygons that contain only 1 or 2 points.
 */
 data &outmap;
-  retain first;
-  set &outmap;
-  by &id segment;
-  where density le 1;
-  if first.segment then first=_n_;
-  if last.segment and _n_-first < 2 then delete;
-  drop first;
+   retain first;
+   set &outmap;
+   by &id segment;
+   where density le 1;
+   if first.segment then first=_n_;
+   if last.segment and _n_-first < 2 then delete;
+   drop first;
 run;
 
 /*
@@ -182,15 +182,16 @@ A second pass is necessary to remove the second point of the 2-point
 polygons.
 */
 data &outmap;
-  * GREDUCE does not preserve PDV order, which is annoying.  ;
-  * Use the input dataset to re-order the PDV. ;
-  if 0 then set &inmap;
-  set &outmap;
-  by &id segment;
-  if first.segment and last.segment then delete;
+   * GREDUCE does not preserve PDV order, which is annoying.  ;
+   * Use the input dataset to re-order the PDV. ;
+   if 0 then set &inmap;
+   set &outmap;
+   by &id segment;
+   if first.segment and last.segment then delete;
 run;
 
 %quit:
+
 %mend;
 
 /******* END OF FILE *******/

@@ -70,7 +70,6 @@ proc optload data=&data;
 run;
 
 %quit:
-%* if (&parmerr) %then %abort;
 
 %mend;
 

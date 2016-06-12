@@ -13,7 +13,7 @@ Program Version #       : 1.0
 
 =======================================================================
 
-Modification History    : Original version
+Modification History    : 
 
 Programmer              : Scott Bass
 Date                    : 30JUN2013
@@ -44,29 +44,29 @@ options ps=max nocenter;
 %queryActiveDirectory(debug=F)
 
 proc print;
-  where length(value) < 60;
+   where length(value) < 60;
 run;
 
 =======================================================================
 
 * return all user information for a particular user ;
 %queryActiveDirectory(
-  filter=(&(samaccountname=rbowden)(objectclass=user))
-  ,debug=I
+   filter=(&(samaccountname=jdoe)(objectclass=user))
+   ,debug=I
 );
 
 proc print;
-  var name value;
-  format value $100.;
+   var name value;
+   format value $100.;
 run;
 
 =======================================================================
 
 * return full name, first name, last name, and email address for a particular user ;
 %queryActiveDirectory(
-  filter=(samaccountname=rbowden)
-  ,attrs=cn givenName sn mail
-  ,debug=F
+   filter=(samaccountname=jdoe)
+   ,attrs=cn givenName sn mail
+   ,debug=F
 );
 
 proc print;
@@ -77,13 +77,13 @@ run;
 * return full name of all users in the Sydney branch of the Active Directory tree ;
 * whose first names begin with "S" ;
 %queryActiveDirectory(
-  base=%str(OU=Sydney,DC=acme,DC=com,DC=au)
-  ,filter=(givenName=S*)
-  ,attrs=cn
+   base=%str(OU=Sydney,DC=acme,DC=com,DC=au)
+   ,filter=(givenName=S*)
+   ,attrs=cn
 );
 
 proc print;
-  var value;
+   var value;
 run;
 
 =======================================================================
@@ -92,13 +92,13 @@ run;
 * whose first or last names contain "will" ;
 * (queries are case-insensitive by default) ;
 %queryActiveDirectory(
-  base=%str(OU=Melbourne,DC=acme,DC=com,DC=au)
-  ,filter=(|(givenName=*will*)(sn=*will*))
-  ,attrs=cn
+   base=%str(OU=Melbourne,DC=acme,DC=com,DC=au)
+   ,filter=(|(givenName=*will*)(sn=*will*))
+   ,attrs=cn
 );
 
 proc print;
-  var value;
+   var value;
 run;
 
 =======================================================================
@@ -106,7 +106,7 @@ run;
 * return all user objects (may take a long time to run) ;
 * in fact, it fails due ldap server sizelimit exceeded ;
 %queryActiveDirectory(
-  filter=(objectclass=user)
+   filter=(objectclass=user)
 );
 
 proc print data=&syslast (obs=50);
@@ -117,7 +117,7 @@ run;
 * return ALL objects (will definitely take a long time to run) ;
 * in fact, it fails due ldap server sizelimit exceeded ;
 %queryActiveDirectory(
-  filter=(objectclass=*)
+   filter=(objectclass=*)
 );
 
 proc print data=&syslast (obs=50);
@@ -128,18 +128,18 @@ run;
 * example of post processing the data in SAS ;
 * return all users with John Doe as their manager ;
 %queryActiveDirectory(
-  base=%str(OU=Sydney,DC=acme,DC=com,DC=au)
-  ,filter=(manager=CN=John Doe,OU=Sydney,DC=acme,DC=com,DC=au)
-  ,attrs=givenName sn streetAddress l st postalCode mail telephoneNumber mobile title
+   base=%str(OU=Sydney,DC=acme,DC=com,DC=au)
+   ,filter=(manager=CN=John Doe,OU=Sydney,DC=acme,DC=com,DC=au)
+   ,attrs=givenName sn streetAddress l st postalCode mail telephoneNumber mobile title
 );
 
 * create macro variables ;
 data _null_;
-  set ldap;
-  by entryname notsorted;
-  if first.entryname then ctr+1;
-  if name="l" then name="city";
-  call symputx(cats(name,ctr),strip(value),"G");
+   set ldap;
+   by entryname notsorted;
+   if first.entryname then ctr+1;
+   if name="l" then name="city";
+   call symputx(cats(name,ctr),strip(value),"G");
 run;
 
 %put &givenname1 &sn1 &mail1 &mobile1; * etc, etc. ;
@@ -150,32 +150,32 @@ run;
 * note: this would give undesired results if the LDAP attribute name ;
 * is not a valid SAS variable name ;
 proc transpose data=ldap out=transposed (rename=(l=city) drop=_name_);
-  by entryname notsorted;
-  id name;
-  var value;
+   by entryname notsorted;
+   id name;
+   var value;
 run;
 
 * if you know the attribute is a multi-valued attribute, ;
 * you would probably want to return the data as a delimited list ;
 %queryActiveDirectory(
-  base=%str(OU=Sydney,DC=acme,DC=com,DC=au)
-  ,filter=(cn=Scott Bass)
+   base=%str(OU=Sydney,DC=acme,DC=com,DC=au)
+   ,filter=(cn=Scott Bass)
 );
 proc sql noprint;
-  select
-    value into :email_proxies separated by "^"
-  from
-    ldap
-  where
-    lowcase(name) = "%lowcase(proxyaddresses)"
-  ;
-  select
-    value into :email_lists separated by "^"
-  from
-    ldap
-  where
-    lowcase(name) = "%lowcase(memberof)"
-  ;
+   select
+      value into :email_proxies separated by "^"
+   from
+      ldap
+   where
+      lowcase(name) = "%lowcase(proxyaddresses)"
+   ;
+   select
+      value into :email_lists separated by "^"
+   from
+      ldap
+   where
+      lowcase(name) = "%lowcase(memberof)"
+   ;
 quit;
 %put &email_proxies;
 %put &email_lists;
@@ -195,6 +195,9 @@ You can use the LDP command ("C:\Program Files (x86)\Support Tools\ldp.exe")
 to view the structure of Active Directory.  For a primer on this
 command and LDAP query syntax, see
 http://technet.microsoft.com/en-us/library/aa996205(v=exchg.65).aspx#DoingASearchUsingADUC
+
+Alternatively, you can use the free Sysinternals tool Active Directory Explorer:
+https://technet.microsoft.com/en-us/sysinternals/adexplorer.aspx
 
 Certain LDAP searches will execute quicker than others, for example
 searching on sAMAccountName (network login) vs. mail (email address).
@@ -237,14 +240,14 @@ Execute an LDAP query against Active Directory
                /* DC=acme,DC=com,DC=au                               */
                /* which is analogous to the root directory in a      */
                /* file system or Windows drive.                      */
-,BINDDN=%str(CN=svc_sas_queryAD,OU=SAS,OU=ServiceAccounts,DC=acme,DC=com,DC=au)
+,BINDDN=%str(CN=svc_AD_query_user,OU=SAS,OU=ServiceAccounts,DC=acme,DC=com,DC=au)
                /* Bind DN used to connect to Active Directory (REQ). */
                /* Our Active Directory is not configured for         */
                /* anonymous binds, so a valid Bind DN and password   */
                /* is required.  You will not usually need to change  */
                /* this value.  However, if you want to connect as    */
                /* yourself, it would be something like:              */
-               /* CN=Scott Bass, DC=acme, DC=com, DC=au              */
+               /* CN=John Doe, DC=acme, DC=com, DC=au                */
                /* and your current LAN password (clear text).        */
 ,PW=password
                /* Bind DN password (REQ).  As above, you will not    */
@@ -286,175 +289,176 @@ Execute an LDAP query against Active Directory
 %let qad_rc=-1;  %* queryActiveDirectory was called, but work.ldap data step view not referenced yet ;
 
 data work.ldap / view=work.ldap;
-  length entryName msg $200 name $50 value $4096;
+   length entryName msg $200 name $50 value $4096;
 
-  %* initialize custom return code (syscc is not suitable) ;
-  call symputx("qad_rc",0,"G");
+   %* initialize custom return code (syscc is not suitable) ;
+   call symputx("qad_rc",0,"G");
 
-  %* initialize variables ;
-  rc=0;
-  handle=0;
-  shandle=0;
-  numEntries=0;
-  debug="&debug";
+   %* initialize variables ;
+   rc=0;
+   handle=0;
+   shandle=0;
+   numEntries=0;
+   debug="&debug";
 
-  %* open connection to LDAP server ;
-  call ldaps_open(handle, "&server", &port, "&base", "&bindDN", "&PW", rc);
+   %* open connection to LDAP server ;
+   call ldaps_open(handle, "&server", &port, "&base", "&bindDN", "&PW", rc);
 
-  if (rc ne 0) then do;
-    msg = sysmsg();
-    putlog msg;
-    putlog "Server:  &server";
-    putlog "Port:    &port";
-    putlog "Bind DN: &bindDN";
-    putlog "Bind PW: ********";
-
-    %* display message and cleanup resources ;
-    link noconnection;
-  end;
-  else do;
-    if (debug ne "") then do;
-      putlog "LDAPS_OPEN call successful.";
-    end;
-  end;
-
-  %* search the LDAP directory ;
-  call ldaps_search(handle, shandle, "&filter", "&attrs", numEntries, rc);
-  if (rc ne 0 or numEntries eq 0) then do;
-    msg = sysmsg();
-    putlog msg;
-    putlog "Base DN: &base";
-    putlog "Filter:  &filter";
-    putlog "Attrs:   &attrs";
-
-    %* display message and cleanup resources ;
-    link noentries;
-  end;
-  else do;
-    if (debug ne "") then do;
-      putlog "LDAPS_SEARCH call successful.";
-      putlog "Num entries returned is " numEntries;
-    end;
-  end;
-
-  do eIndex = 1 to numEntries;
-    numAttrs=0;
-    entryname="";
-
-    %* retrieve each entry name and number of attributes ;
-    call ldaps_entry(shandle, eIndex, entryname, numAttrs, rc);
-    if (rc ne 0 or numAttrs eq 0) then do;
+   if (rc ne 0) then do;
       msg = sysmsg();
       putlog msg;
+      putlog "Server:  &server";
+      putlog "Port:    &port";
+      putlog "Bind DN: &bindDN";
+      putlog "Bind PW: ********";
 
       %* display message and cleanup resources ;
-      link noattrs;
-    end;
-    else do;
+      link noconnection;
+   end;
+   else do;
       if (debug ne "") then do;
-        putlog "LDAPS_ENTRY call successful.";
-        putlog "Num attributes returned is " numAttrs;
+         putlog "LDAPS_OPEN call successful.";
       end;
-    end;
+   end;
 
-    do aIndex = 1 to numAttrs;
-      numValues=0;
-      name="";
-
-      %* for each attribute, retrieve name and number of values ;
-      call ldaps_attrName(shandle, eIndex, aIndex, name, numValues, rc);
-      if (rc ne 0) then do;
-        msg = sysmsg();
-        putlog msg;
-        link novalues;
-      end;
-
-      do vIndex = 1 to numValues;
-        %* for each attribute, retrieve the values (may be more than one) ;
-        call ldaps_attrValue(shandle, eIndex, aIndex, vIndex, value, rc);
-        if (rc ne 0) then do;
-           msg = sysmsg();
-           putlog msg;
-           link novalues;
-        end;
-        else do;
-          if (debug="F") then do;
-            putlog name= @60 value=;
-          end;
-          output;
-        end;
-      end;
-    end;
-  end;
-
-  cleanup:
-    link free;
-    link close;
-  return;
-
-  free:
-    if (shandle=0) then return;
-
-    %* free search resources ;
-    call ldaps_free(shandle, rc);
-    if (rc ne 0) then do;
+   %* search the LDAP directory ;
+   call ldaps_search(handle, shandle, "&filter", "&attrs", numEntries, rc);
+   if (rc ne 0 or numEntries eq 0) then do;
       msg = sysmsg();
       putlog msg;
-    end;
-    else do;
+      putlog "Base DN: &base";
+      putlog "Filter:  &filter";
+      putlog "Attrs:   &attrs";
+
+      %* display message and cleanup resources ;
+      link noentries;
+   end;
+   else do;
       if (debug ne "") then do;
-        putlog "LDAPS_FREE call successful.";
+         putlog "LDAPS_SEARCH call successful.";
+         putlog "Num entries returned is " numEntries;
       end;
-    end;
-  return;
+   end;
 
-  close:
-    if (handle=0) then stop;
+   do eIndex = 1 to numEntries;
+      numAttrs=0;
+      entryname="";
 
-    %* close connection to LDAP server ;
-    call ldaps_close(handle, rc);
-    if (rc ne 0) then do;
-       msg = sysmsg();
-       putlog msg;
-    end;
-    else do;
-      if (debug ne "") then do;
-        putlog "LDAPS_CLOSE call successful.";
+      %* retrieve each entry name and number of attributes ;
+      call ldaps_entry(shandle, eIndex, entryname, numAttrs, rc);
+      if (rc ne 0 or numAttrs eq 0) then do;
+         msg = sysmsg();
+         putlog msg;
+
+         %* display message and cleanup resources ;
+         link noattrs;
       end;
-    end;
+      else do;
+         if (debug ne "") then do;
+            putlog "LDAPS_ENTRY call successful.";
+            putlog "Num attributes returned is " numAttrs;
+         end;
+      end;
 
-    %* all calls to close result in a stop ;
-    stop;
-  return;
+      do aIndex = 1 to numAttrs;
+         numValues=0;
+         name="";
 
-  noconnection:
-    putlog "Unable to contact the LDAP server.  Check your connection settings.";
-    call symputx("qad_rc",3891);
-    link cleanup;
-  return;
+         %* for each attribute, retrieve name and number of values ;
+         call ldaps_attrName(shandle, eIndex, aIndex, name, numValues, rc);
+         if (rc ne 0) then do;
+            msg = sysmsg();
+            putlog msg;
+            link novalues;
+         end;
 
-  noentries:
-    putlog "No entries found.  Check your Base DN or search filter.";
-    call symputx("qad_rc",3892);
-    link cleanup;
-  return;
+         do vIndex = 1 to numValues;
+            %* for each attribute, retrieve the values (may be more than one) ;
+            call ldaps_attrValue(shandle, eIndex, aIndex, vIndex, value, rc);
+            if (rc ne 0) then do;
+               msg = sysmsg();
+               putlog msg;
+               link novalues;
+            end;
+            else do;
+               if (debug="F") then do;
+                  putlog name= @60 value=;
+               end;
+               output;
+            end;
+         end;
+      end;
+   end;
 
-  noattrs:
-    putlog "No attributes found.  Check your attributes setting.";
-    call symputx("qad_rc",3893);
-    link cleanup;
-  return;
+   cleanup:
+      link free;
+      link close;
+   return;
 
-  novalues:
-    putlog "Error retrieving values.";
-    call symputx("qad_rc",3894);
-    link cleanup;
-  return;
+   free:
+      if (shandle=0) then return;
 
-  keep entryName name value;
+      %* free search resources ;
+      call ldaps_free(shandle, rc);
+      if (rc ne 0) then do;
+         msg = sysmsg();
+         putlog msg;
+      end;
+      else do;
+         if (debug ne "") then do;
+            putlog "LDAPS_FREE call successful.";
+         end;
+      end;
+   return;
+
+   close:
+      if (handle=0) then stop;
+
+      %* close connection to LDAP server ;
+      call ldaps_close(handle, rc);
+      if (rc ne 0) then do;
+         msg = sysmsg();
+         putlog msg;
+      end;
+      else do;
+         if (debug ne "") then do;
+            putlog "LDAPS_CLOSE call successful.";
+         end;
+      end;
+
+      %* all calls to close result in a stop ;
+      stop;
+   return;
+
+   noconnection:
+      putlog "Unable to contact the LDAP server.  Check your connection settings.";
+      call symputx("qad_rc",3891);
+      link cleanup;
+   return;
+
+   noentries:
+      putlog "No entries found.  Check your Base DN or search filter.";
+      call symputx("qad_rc",3892);
+      link cleanup;
+   return;
+
+   noattrs:
+      putlog "No attributes found.  Check your attributes setting.";
+      call symputx("qad_rc",3893);
+      link cleanup;
+   return;
+
+   novalues:
+      putlog "Error retrieving values.";
+      call symputx("qad_rc",3894);
+      link cleanup;
+   return;
+
+   keep entryName name value;
 run;
 
 %quit:
+
 %mend;
 
 /******* END OF FILE *******/

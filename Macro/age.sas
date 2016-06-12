@@ -14,7 +14,7 @@ Program Version #       : 1.0
 
 =======================================================================
 
-Modification History    : Original version
+Modification History    : 
 
 =====================================================================*/
 
@@ -63,7 +63,7 @@ based on a reference date.
 %let macro = &sysmacroname;
 
 %* set default end date if it was not specified ;
-%if (%superq(enddate) eq )) %then %let enddate = %sysfunc(today());
+%if (%superq(enddate) eq ) %then %let enddate = %sysfunc(today());
 
 %* check input parameters ;
 %parmv(BEGDATE,      _req=1,_words=0)
@@ -73,11 +73,11 @@ based on a reference date.
 %if (&parmerr) %then %goto quit;
 
 %if (%upcase(%substr(&units,1,1)) = Y) %then %do;
-   floor((intck('month',&begdate,&enddate) - (day(&enddate) < day(&begdate)))/12)
+   floor((intck('month',&begdate,&enddate) - (day(&enddate)<day(&begdate)))/12)
 %end;
 %else
 %if (%upcase(%substr(&units,1,1)) = M) %then %do;
-   floor((intck('month',&begdate,&enddate) - (day(&enddate) < day(&begdate))))
+   floor((intck('month',&begdate,&enddate) - (day(&enddate)<day(&begdate))))
 %end;
 %else
 %if (%upcase(%substr(&units,1,1)) = D) %then %do;
@@ -85,7 +85,6 @@ based on a reference date.
 %end;
 
 %quit:
-%* if (&parmerr) %then %abort;
 
 %mend;
 

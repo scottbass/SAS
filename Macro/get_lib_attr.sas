@@ -14,7 +14,7 @@ Program Version #       : 1.0
 
 =======================================================================
 
-Modification History    : Original version
+Modification History    : 
 
 =====================================================================*/
 
@@ -52,15 +52,15 @@ libname excel excel   "C:\Temp\temp.xls";  * this file must exist ;
 %put %get_lib_attr(sashelp,path,levels=0);
 
 %macro parse_output;
-  %put %get_lib_attr(spde,sysname,levels=0);
-  %put %get_lib_attr(spde,sysvalue,levels=0);
-  %let _sysname=%get_lib_attr(spde,sysname,levels=0);
-  %let _sysvalue=%get_lib_attr(spde,sysvalue,levels=0);
-  %put sysname=&_sysname;
-  %put sysvalue=&_sysvalue;
-  %do i=1 %to 4;
-    %put %scan(&_sysname,&i,^)=%scan(&_sysvalue,&i,^);
-  %end;
+   %put %get_lib_attr(spde,sysname,levels=0);
+   %put %get_lib_attr(spde,sysvalue,levels=0);
+   %let _sysname=%get_lib_attr(spde,sysname,levels=0);
+   %let _sysvalue=%get_lib_attr(spde,sysvalue,levels=0);
+   %put sysname=&_sysname;
+   %put sysvalue=&_sysvalue;
+   %do i=1 %to 4;
+      %put %scan(&_sysname,&i,^)=%scan(&_sysvalue,&i,^);
+   %end;
 %mend;
 %parse_output;
 
@@ -143,20 +143,19 @@ TEMP
 %* if levels=0 then return all items in a delimited list ;
 %* else just return the specified record (usually 1) ;
 %if (&levels eq 0) %then %do;
-  %do %while (%sysfunc(fetch(&dsid)) eq 0);
-  %* do not indent the below line ;
+   %do %while (%sysfunc(fetch(&dsid)) eq 0);
+   %* do not indent the below line ;
 %trim(%left(&&&attr)) &dlm
-  %end;
+   %end;
 %end;
 %else %do;
-  %let rc=%sysfunc(fetchobs(&dsid,&levels));
-  %* do not indent the below line ;
+   %let rc=%sysfunc(fetchobs(&dsid,&levels));
+   %* do not indent the below line ;
 %trim(%left(&&&attr))
 %end;
 %let dsid=%sysfunc(close(&dsid));
 
 %quit:
-%* if (&parmerr) %then %abort;
 
 %mend;
 

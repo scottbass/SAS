@@ -3,7 +3,7 @@ Program Name            : useridToEmail.sas
 Purpose                 : Maps a userid to the corresponding email address
 SAS Version             : SAS 9.2
 Input Data              : LAN Userid
-                          Data step view created by %QueryActiveDirectory
+                                       Data step view created by %QueryActiveDirectory
 Output Data             : Email address (default is &email macro variable)
 
 Macros Called           : parmv, queryActiveDirectory
@@ -14,7 +14,7 @@ Program Version #       : 1.0
 
 =======================================================================
 
-Modification History    : Original version
+Modification History    : 
 
 =====================================================================*/
 
@@ -29,8 +29,8 @@ Usage:
 
 * return email address of a specific user, into a named macro variable ;
 %useridToEmail(
-  userid=jdoe
-  ,mvar=emailaddress
+   userid=jdoe
+   ,mvar=emailaddress
 );
 %put &emailaddress;
 
@@ -56,13 +56,13 @@ Maps a userid to the corresponding email address
                /*    Blank = no debugging                            */
                /*    I     = connection information only             */
                /*    F     = full debugging (on a large query this   */
-               /*          =    can fill the SAS DMS log)            */
+               /*            can fill the SAS DMS log)               */
 );
 
 %local macro parmerr;
 %let macro = &sysmacroname;
 
-%* check input parameters ;
+%* check input parameters ;  
 %parmv(USERID,       _req=1,_words=0,_case=N)
 %parmv(MVAR,         _req=1,_words=0,_case=U)
 %parmv(DEBUG,        _req=0,_words=0,_case=U,_val=I F)
@@ -75,24 +75,25 @@ Maps a userid to the corresponding email address
 
 %* call the QueryActiveDirectory macro ;
 %QueryActiveDirectory(
-  filter=(&(sAMAccountname=&userid)(objectclass=user))
-  ,attrs=mail
-  ,debug=&debug
+   filter=(&(sAMAccountname=&userid)(objectclass=user))
+   ,attrs=mail
+   ,debug=&debug
 )
 
 %* set the macro variable ;
 data _null_;
-  set &syslast;
-  call symputx("&mvar",value);
-  stop;
+   set &syslast;
+   call symputx("&mvar",value);
+   stop;
 run;
 
 %if (&qad_rc ne 0) %then %do;
-  %parmv(_msg=Error calling the QueryActiveDirectory macro)
-  %goto quit;
+   %parmv(_msg=Error calling the QueryActiveDirectory macro)
+   %goto quit;
 %end;
 
 %quit:
+
 %mend;
 
 /******* END OF FILE *******/

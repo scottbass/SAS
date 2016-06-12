@@ -39,6 +39,8 @@ Program Version #       : 1.4
 /*---------------------------------------------------------------------
 Usage:
 
+* CREATE SAMPLE METADATA ;
+
 * delete all global macro variables ;
 proc sql noprint;
    select name into :_mvars_ separated by " "
@@ -272,7 +274,7 @@ Get the global and optional metadata parameters
 ,_MISSING=Y    /* Set macro variables if value is missing? (REQ).    */
                /* If YES, macro variables are defined even if the    */
                /* value is missing.  If NO, only macro variables     */
-               /* non-missing data values are defined.               */
+               /* with non-missing data values are defined.          */
                /* Default value is YES.  Valid values are:           */
                /* 0 1 OFF N NO F FALSE and ON Y YES T TRUE           */
                /* OFF N NO F FALSE and ON Y YES T TRUE               */
@@ -424,7 +426,6 @@ run;
 options &_serror;
 
 %quit:
-%* if (&parmerr) %then %abort;
 
 %mend;
 

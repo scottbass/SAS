@@ -15,7 +15,7 @@ Program Version #       : 1.0
 
 ======================================================================
 
-Modification History    : Original version
+Modification History    : 
 
 ====================================================================*/
 
@@ -209,10 +209,12 @@ PROC COMPARE either two datasets or two libraries
                /* Maximum PROC COMPARE differences to print (REQ).  */
 ,CRITERION=.000001
                /* Fuzz factor for numeric comparisons (REQ).        */
-
+,METHOD=EXACT
+               /* Specifies the method for judging the equality of  */
+               /* numeric values                                    */
 );
 
-%local macro parmerr base_type comp_type type by_dataset by_var word;
+%local macro parmerr base_type comp_type type by_dataset by_var word obs;
 %let macro = &sysmacroname;
 
 %* check input parameters ;
@@ -223,6 +225,7 @@ PROC COMPARE either two datasets or two libraries
 %parmv(CHECKOBS,      _req=0,_words=0,_case=U)
 %parmv(MAXPRINT,      _req=1,_words=1,_case=U)
 %parmv(CRITERION,     _req=1,_words=0,_case=U)
+%parmv(METHOD,         _req=1,_words=0,_case=U,_val=ABSOLUTE EXACT PERCENT RELATIVE)
 
 %if (&parmerr) %then %goto quit;
 
@@ -253,8 +256,8 @@ PROC COMPARE either two datasets or two libraries
 %if (&parmerr) %then %goto quit;
 
 %* use SPDE work library for better performance ;
-%if (%sysfunc(libref(spdework)) ne 0) %then %do;
-libname spdework spde "%sysfunc(pathname(work))" temp=yes;
+%if (%sysfunc(libref(workspde)) ne 0) %then %do;
+libname workspde spde "%sysfunc(pathname(work))" temp=yes;
 %end;
 
 %* capture current value of obs option ;
@@ -268,7 +271,7 @@ libname spdework spde "%sysfunc(pathname(work))" temp=yes;
   options obs=max;
 
   proc sql noprint;
-    create table spdework.compare_libraries as
+    create table workspde.compare_libraries as
       select
          case when base.memname is null then 0 else 1 end as in_base
         ,case when comp.memname is null then 0 else 1 end as in_comp
@@ -319,7 +322,7 @@ libname spdework spde "%sysfunc(pathname(work))" temp=yes;
     select
       base_memname into :datasets separated by " "
       from
-        spdework.compare_libraries
+        workspde.compare_libraries
       where
         in_base and in_comp
       ;
@@ -328,8 +331,8 @@ libname spdework spde "%sysfunc(pathname(work))" temp=yes;
   options obs=&obs;
 
   title;
-  title1 "Library comparison report between &base and &compare libraries";
-  proc report data=spdework.compare_libraries (obs=max) nowd;
+  title1 "Library comparison report between &base  and &compare  libraries";
+  proc report data=workspde.compare_libraries (obs=max) nowd;
     column
     ("_Flags_"    in_base in_comp matched)
     ("_Base_"     base_libname base_memname base_nobs)
@@ -363,6 +366,7 @@ libname spdework spde "%sysfunc(pathname(work))" temp=yes;
       ,checkobs=&checkobs
       ,maxprint=%quote(&maxprint)
       ,criterion=&criterion
+      ,method=&method
     )
   %mend;
   %loop(&datasets)
@@ -407,7 +411,7 @@ libname spdework spde "%sysfunc(pathname(work))" temp=yes;
       retain dummy "";
     run;
 
-    proc sort data=work._temp_ out=spdework._base_ %if %varexist(work._temp_,loaddttm) %then (drop=loaddttm);;
+    proc sort data=work._temp_ out=workspde._base_ %if %varexist(work._temp_,loaddttm) %then (drop=loaddttm);;
       by &by;
     run;
 
@@ -420,16 +424,16 @@ libname spdework spde "%sysfunc(pathname(work))" temp=yes;
       retain dummy "";
     run;
 
-    proc sort data=work._temp_ out=spdework._comp_ %if %varexist(work._temp_,loaddttm) %then (drop=loaddttm);;
+    proc sort data=work._temp_ out=workspde._comp_ %if %varexist(work._temp_,loaddttm) %then (drop=loaddttm);;
       by &by;
     run;
 
     %kill(data=work._temp_)
 
-    %let base=spdework._base_;
-    %let compare=spdework._comp_;
+    %let base=workspde._base_;
+    %let compare=workspde._comp_;
 
-    data spdework.check;
+    data workspde.check;
       format in;
       merge
         &base    (in=base keep=&by)
@@ -444,7 +448,7 @@ libname spdework spde "%sysfunc(pathname(work))" temp=yes;
   %else %do;
     %* no BY variables, so assume both datasets are in desired sort order ;
     %* interleave datasets (merge with no by statement) ;
-    data spdework.check;
+    data workspde.check;
       format in;
       merge
         &base    (in=base keep=&by)
@@ -456,18 +460,18 @@ libname spdework spde "%sysfunc(pathname(work))" temp=yes;
     run;
   %end;
 
-  title1 "Comparison of &base_title (base) to &compare_title (compare) datasets";
+  title1 "Comparison of &base_title  (base) to &compare_title  (compare) datasets";
   title3 "Records not in both datasets";
   data _null_;
     if (nobs) then do;
       put / "There are " nobs "records that are not shared between the &base and &compare datasets" /;
     end;
     stop;
-    set spdework.check nobs=nobs;
+    set workspde.check nobs=nobs;
   run;
 
   %if (&checkobs eq %str( ) or &checkobs eq MAX or &checkobs gt 0) %then %do;
-    proc print data=spdework.check
+    proc print data=workspde.check
     %if (&checkobs ne ) %then
       (obs=&checkobs);
     %else
@@ -478,7 +482,7 @@ libname spdework spde "%sysfunc(pathname(work))" temp=yes;
   %end;
 
   %* now compare the two datasets themselves ;
-  title1 "Comparing &base_title and &compare_title datasets";
+  title1 "Comparing &base_title  and &compare_title  datasets";
   proc compare
     base=&base
     compare=&compare
@@ -486,8 +490,10 @@ libname spdework spde "%sysfunc(pathname(work))" temp=yes;
     listcompvar
     warning
     maxprint=(&maxprint)
-    method=relative
+    method=&method
+    %if (&method ne EXACT) %then %do;
     criterion=&criterion
+    %end;
     ;
     %if (&by ne ) %then %do;
       id &by;
@@ -498,7 +504,6 @@ libname spdework spde "%sysfunc(pathname(work))" temp=yes;
 %end;
 
 %quit:
-%* if (&parmerr) %then %abort;
 
 %mend;
 

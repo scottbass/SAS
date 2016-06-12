@@ -13,7 +13,7 @@ Program Version #       : 1.0
 
 =======================================================================
 
-Modification History    : Original version
+Modification History    : 
 
 =====================================================================*/
 
@@ -50,7 +50,7 @@ Notes:
 Returns value of option
 ---------------------------------------------------------------------*/
 (OPTNAME       /* Option name (REQ).                                 */
-,KEYWORD=Y     /* Return value in a KEYWORD= format? (Opt)           */
+,KEYWORD=N     /* Return value in a KEYWORD= format? (Opt)           */
                /* If Y, the KEYWORD parameter is passed to the       */
                /* getoption function.                                */
                /* OFF N NO F FALSE and ON Y YES T TRUE               */
@@ -75,7 +75,6 @@ Returns value of option
 %end;
 
 %quit:
-%* if (&parmerr) %then %abort;
 
 %mend;
 

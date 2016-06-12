@@ -1,6 +1,7 @@
 /*====================================================================
 Program Name            : handle.sas
-Purpose                 : Print a list of open file handles to the SAS log
+Purpose                 : Print a list of open file handles to the 
+                          SAS log
 SAS Version             : SAS 9.2
 Input Data              : None
 Output Data             : None
@@ -13,7 +14,7 @@ Program Version #       : 1.0
 
 ======================================================================
 
-Modification History    : Original version
+Modification History    : 
 
 Programmer              : Scott Bass
 Date                    : 03MAY2013
@@ -36,7 +37,7 @@ Lists all open file handles on the server (probably not what you want)
 Base Engine:
 
 data one two;
-  x=1;
+   x=1;
 run;
 
 %handle(lib=work,           unlock=no, email=no);
@@ -103,8 +104,8 @@ Notes:
 The handle command does not accept usual filename wildcards, but will
 filter the results based on a partial file fragment, including the file
 path.  So, we can filter the results by specifying a path, a filename
-(even a partial filename), or both.  See the help for handle for more
-details.
+(even a partial filename), or both.  See the help for handle.exe for 
+more details.
 
 If LIB is specified, it will override the library portion if you also
 specify a two-level DATA parameter.
@@ -182,8 +183,8 @@ Print a list of open file handles to the SAS log
 
 %* One-level name was specified ;
 %if (&_data eq ) %then %do;
-  %let _data=&_lib;
-  %let _lib=work;
+   %let _data=&_lib;
+   %let _lib=work;
 %end;
 
 %* The library in a two-level dataset name takes precedence over the lib parameter, ;
@@ -193,40 +194,40 @@ Print a list of open file handles to the SAS log
 
 %* Now set the path filter ;
 %if (%superq(_lib) ne ) %then %do;
-  %* if an explicit path was specified, use the path as is ;
-  %* assume an explict path contains at least one backslash ;
-  %if (%index(%superq(_lib),\)) %then %do;
-    %* nothing ;
-  %end;
-  %else %do;
-    %* assume it is a libref ;
+   %* if an explicit path was specified, use the path as is ;
+   %* assume an explict path contains at least one backslash ;
+   %if (%index(%superq(_lib),\)) %then %do;
+      %* nothing ;
+   %end;
+   %else %do;
+      %* assume it is a libref ;
 
-    %* is the library allocated ;
-    %if (%sysfunc(libref(%superq(_lib))) ne 0) %then %do;
-      %put ERROR:: Libref &_lib is not allocated.;
-      %goto quit;
-    %end;
-    %else %do;
-      %let _lib=%sysfunc(pathname(%superq(_lib)));
-
-      %* if the library is a concatenated path print a message and quit ;
-      %if (%index(%superq(_lib),%str(%())) %then %do;
-        %put NOTE:: The handle macro does not work with concatenated library allocations.;
-        %goto quit;
+      %* is the library allocated ;
+      %if (%sysfunc(libref(%superq(_lib))) ne 0) %then %do;
+         %put ERROR:: Libref &_lib is not allocated.;
+         %goto quit;
       %end;
-    %end;
-  %end;
-  %* remove trailing slash ;
-  %if (%substr(%superq(_lib),%length(%superq(_lib))) eq \) %then %let _lib=%substr(%superq(_lib),1,%length(%superq(_lib))-1);
+      %else %do;
+         %let _lib=%sysfunc(pathname(%superq(_lib)));
+
+         %* if the library is a concatenated path print a message and quit ;
+         %if (%index(%superq(_lib),%str(%())) %then %do;
+            %put NOTE:: The handle macro does not work with concatenated library allocations.;
+            %goto quit;
+         %end;
+      %end;
+   %end;
+   %* remove trailing slash ;
+   %if (%substr(%superq(_lib),%length(%superq(_lib))) eq \) %then %let _lib=%substr(%superq(_lib),1,%length(%superq(_lib))-1);
 %end;
 
 %* Set path ;
 %if (%superq(_lib) ne ) %then
-  %let path=&_lib\&_data;
+   %let path=&_lib\&_data;
 %else
-  %let path=&_data;
+   %let path=&_data;
 %if (%superq(path) eq ) %then
-  %let path=\;
+   %let path=\;
 
 %* Now invoke handle via filename pipe and echo the results to the log ;
 %put;
@@ -252,41 +253,41 @@ $               = end of line
 %let options=%sysfunc(getoption(ls,keyword));
 options ls=max;
 data _processes_;
-  length process $30 pid 5 type $8 domain $15 userid $20 handle $5 path $300;
-  if _n_=1 then do;
-    rx=prxparse("/^(.+?) pid: +(\d+) +type: +(.+?) +(.+?)\\(.+?)(  |>)(.+?): (.+)$/o");
-    retain rx;
-  end;
-  infile "&handle &handle_opts &path" pipe lrecl=1024 firstobs=6;
-  input;
-  if prxmatch(rx,trim(_infile_)) then do;
-    process   = strip(prxposn(rx,1,_infile_));
-    pid       = input(strip(prxposn(rx,2,_infile_)),best.);
-    type      = strip(prxposn(rx,3,_infile_));
-    domain    = strip(prxposn(rx,4,_infile_));
-    userid    = strip(prxposn(rx,5,_infile_))||strip(prxposn(rx,6,_infile_));
-    handle    = strip(prxposn(rx,7,_infile_));
-    path      = strip(prxposn(rx,8,_infile_));
+   length process $30 pid 5 type $8 domain $15 userid $20 handle $5 path $300;
+   if _n_=1 then do;
+      rx=prxparse("/^(.+?) pid: +(\d+) +type: +(.+?) +(.+?)\\(.+?)(  |>)(.+?): (.+)$/o");
+      retain rx;
+   end;
+   infile "&handle &handle_opts &path" pipe lrecl=1024 firstobs=6;
+   input;
+   if prxmatch(rx,trim(_infile_)) then do;
+      process   = strip(prxposn(rx,1,_infile_));
+      pid       = input(strip(prxposn(rx,2,_infile_)),best.);
+      type      = strip(prxposn(rx,3,_infile_));
+      domain    = strip(prxposn(rx,4,_infile_));
+      userid    = strip(prxposn(rx,5,_infile_))||strip(prxposn(rx,6,_infile_));
+      handle    = strip(prxposn(rx,7,_infile_));
+      path      = strip(prxposn(rx,8,_infile_));
 
-    %* print data to SAS log ;
-    retain header 0;
-    if (not header) then link header;
-    temp=catx("\",domain,userid);
-    putlog   @1 process   @33 pid 5. @40 type   @49 temp            @85 path;
-    return;
+      %* print data to SAS log ;
+      retain header 0;
+      if (not header) then link header;
+      temp=catx("\",domain,userid);
+      putlog   @1 process   @33 pid 5. @40 type   @49 temp            @85 path;
+      return;
 
-    %* print header ;
-    header:
-      header=1;
-      putlog;
-      putlog @1 "WARNING: One or more files are locked.";
-      putlog;
-      putlog @1 "PROCESS" @33 "PID" @40 "TYPE" @49 "DOMAIN\USERID" @85 "PATH";
-      putlog @1 "=======" @33 "===" @40 "====" @49 "=============" @85 "====";
-    return;
-  end;
-  else delete;
-  drop rx temp header;
+      %* print header ;
+      header:
+         header=1;
+         putlog;
+         putlog @1 "WARNING: One or more files are locked.";
+         putlog;
+         putlog @1 "PROCESS" @33 "PID" @40 "TYPE" @49 "DOMAIN\USERID" @85 "PATH";
+         putlog @1 "=======" @33 "===" @40 "====" @49 "=============" @85 "====";
+      return;
+   end;
+   else delete;
+   drop rx temp header;
 run;
 options &options;
 
@@ -295,140 +296,142 @@ options &options;
 %* if unlock=yes, use handle again to unlock the handles ;
 %* use systask instead of system(), call system(), or X since it causes less window flashing ;
 %if (&unlock) %then %do;
-  *** close open file handles *** ;
-  data _null_;
-    set _processes_;
-    length command $500;
-    command=catx(
-      " ",
-      "&handle",
-      "-accepteula",
-      "-p", pid,
-      "-c", handle,
-      "-y"
-    );
-    command=catx(
-      " ",
-      "systask",
-      "command",
-      quote(strip(command)),
-      "wait;"
-    );
-    call execute(command);
-  run;
+   *** close open file handles *** ;
+   data _null_;
+      set _processes_;
+      length command $500;
+      command=catx(
+         " ",
+         "&handle",
+         "-accepteula",
+         "-p", pid,
+         "-c", handle,
+         "-y"
+      );
+      command=catx(
+         " ",
+         "systask",
+         "command",
+         quote(strip(command)),
+         "wait;"
+      );
+      call execute(command);
+   run;
 %end;
 
 *** check that the file handles have been closed *** ;
 data _null_;
-  call symputx("handle_rc",0);
-  infile "&handle &handle_opts &path" pipe lrecl=1024 firstobs=6;
-  input;
-  if (prxmatch("/No matching handles found./o",_infile_)) then do;
-    putlog _infile_/"0A0D"x;
-    stop;
-  end;
-  call symputx("handle_rc",1);
-  stop;
+   call symputx("handle_rc",0);
+   infile "&handle &handle_opts &path" pipe lrecl=1024 firstobs=6;
+   input;
+   if (prxmatch("/No matching handles found./o",_infile_)) then do;
+      putlog _infile_/"0A0D"x;
+      stop;
+   end;
+   call symputx("handle_rc",1);
+   stop;
 run;
 
 %* if email=yes, send an email to each unique userid ;
 %if (&email) %then %do;
-  *** send notification email *** ;
-  proc sql noprint;
-    select distinct
-      catx("|",userid,pid) into :userids separated by "^"
-    from
-      _processes_
-    where
-      domain="INTERNAL"  /* only email "human" userids, not service accounts */
-    ;
-  quit;
+   *** send notification email *** ;
+   proc sql noprint;
+      select distinct
+         catx("|",userid,pid) into :userids separated by "^"
+      from
+         _processes_
+      where
+         domain="INTERNAL"  /* only email "human" userids, not service accounts */
+      ;
+   quit;
 
-  %macro handleSendEmail;
-    %let userid    = %scan(&word,1,|);
-    %let pid       = %scan(&word,2,|);
+   %macro handleSendEmail;
+      %let userid    = %scan(&word,1,|);
+      %let pid       = %scan(&word,2,|);
 
-    %* initialize variables used in the email text ;
-    %let firstname = &userid;  %* initialize in case %useridToEmail lookup fails ;
+      %* initialize variables used in the email text ;
+      %let firstname = &userid;  %* initialize in case %useridToEmail lookup fails ;
 
-    %* Retrieve email address from userid ;
-    %useridToEmail(userid=&userid,mvar=emailaddress)
+      %* Retrieve email address from userid ;
+      %useridToEmail(userid=&userid,mvar=emailaddress)
 
-    %if (&emailaddress ne ) %then %do;
-      %let to=&emailaddress;
-      %* assume email address is in the form firstname.lastname@acme.com ;
-      %let firstname=%scan(&emailaddress,1,.);
-      %let firstname=%sysfunc(propcase(&firstname));
-    %end;
+      %if (&emailaddress ne ) %then %do;
+         %let to=&emailaddress;
+         %* assume email address is in the form firstname.lastname@acme.com ;
+         %let firstname=%scan(&emailaddress,1,.);
+         %let firstname=%sysfunc(propcase(&firstname));
+      %end;
 
-    %* put email lookup debugging information in the log ;
-    %put qad_rc=&qad_rc;
-    %put emailaddress=&emailaddress;
+      %* put email lookup debugging information in the log ;
+      %put qad_rc=&qad_rc;
+      %put emailaddress=&emailaddress;
 
-    %* create mail dataset from external file ;
-    data mail;
-      length parm $15 line $1000;
-      retain parm "";
-      retain header 0;
+      %* create mail dataset from external file ;
+      data mail;
+         length parm $15 line $1000;
+         retain parm "";
+         retain header 0;
 
-      do until (eof1);
-        infile "&email_path" truncover lrecl=1000 end=eof1;
-        input;
-        line=resolve(_infile_);
-        output;
-      end;
+         do until (eof1);
+            infile "&email_path" truncover lrecl=1000 end=eof1;
+            input;
+            line=resolve(_infile_);
+            output;
+         end;
 
-      %* add appendix information to the email ;
-      do until (eof2);
-        set _processes_ end=eof2;
-        if (not header) then link header;
-        call missing(line);
-        substr(line,1) =process;
-        substr(line,33)=put(pid,5.);
-        substr(line,40)=type;
-        substr(line,49)=catx("\",domain,userid);
-        substr(line,85)=path;
-        output;
-      end;
+         %* add appendix information to the email ;
+         do until (eof2);
+            set _processes_ end=eof2;
+            if (not header) then link header;
+            call missing(line);
+            substr(line,1) =process;
+            substr(line,33)=put(pid,5.);
+            substr(line,40)=type;
+            substr(line,49)=catx("\",domain,userid);
+            substr(line,85)=path;
+            output;
+         end;
 
-      stop;
+         stop;
 
-      header:
-        header=1;
-        call missing(line);
-        line="Appendix: List of locked files";
-        output;
-        call missing(line);
-        output;
-        substr(line,1) ="PROCESS";
-        substr(line,33)="PID";
-        substr(line,40)="TYPE";
-        substr(line,49)="DOMAIN\USERID";
-        substr(line,85)="PATH";
-        output;
-        call missing(line);
-        substr(line,1) ="=======";
-        substr(line,33)="===";
-        substr(line,40)="====";
-        substr(line,49)="=============";
-        substr(line,85)="====";
-        output;
-      return;
+         header:
+            header=1;
+            call missing(line);
+            line="Appendix: List of locked files";
+            output;
+            call missing(line);
+            output;
+            substr(line,1) ="PROCESS";
+            substr(line,33)="PID";
+            substr(line,40)="TYPE";
+            substr(line,49)="DOMAIN\USERID";
+            substr(line,85)="PATH";
+            output;
+            call missing(line);
+            substr(line,1) ="=======";
+            substr(line,33)="===";
+            substr(line,40)="====";
+            substr(line,49)="=============";
+            substr(line,85)="====";
+            output;
+         return;
 
-      keep parm line;
-    run;
+         keep parm line;
+      run;
 
-    %sendmail(
-      to=&to
-      ,cc=&cc
-      ,subject=&subject
-      ,content_type=text/plain
-      ,metadata=mail
-    )
-  %mend;
-  %loop(&userids,mname=handleSendEmail,dlm=^)
+      %sendmail(
+         to=&to
+         ,cc=&cc
+         ,subject=&subject
+         ,content_type=text/plain
+         ,metadata=mail
+      )
+   %mend;
+   %loop(&userids,mname=handleSendEmail,dlm=^)
 %end;
+
 %quit:
+
 %mend;
 
 /******* END OF FILE *******/

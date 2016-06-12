@@ -14,7 +14,7 @@ Program Version #       : 1.0
 
 =======================================================================
 
-Modification History    : Original version
+Modification History    : 
 
 =====================================================================*/
 
@@ -451,7 +451,6 @@ data _null_;
 run;
 
 %quit:
-%* if (&parmerr) %then %abort;
 
 %mend;
 

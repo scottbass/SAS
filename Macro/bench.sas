@@ -14,7 +14,13 @@ Program Version #       : 1.0
 
 =======================================================================
 
-Modification History    : Original version
+Modification History    : 
+
+Programmer              : Scott Bass
+Date                    : 09JUL2015
+Change/reason           : Added DATA, MESSAGE, and PRINT parameters
+                          to capture running metrics.
+Program Version #       : 1.1
 
 =====================================================================*/
 
@@ -27,27 +33,31 @@ Usage:
 %bench;
 %bench(start);
 
-data _null_;
-   rc=sleep(3);
-run;
+%let rc=%sysfunc(sleep(3));
 
 * Get elapsed time, should be approx. 3 seconds elapsed, 3 seconds total ;
 %bench(elapsed);
 
-data _null_;
-   rc=sleep(7);
-run;
+%let rc=%sysfunc(sleep(7));
 
 * Get another elapsed time, should be approx. 7 seconds elapsed, 10 seconds total ;
 %bench;  * elapsed parm not required since start was already called ;
 
-data _null_;
-   rc=sleep(2);
-run;
+%let rc=%sysfunc(sleep(2));
 
 * End benchmarking, should be approx. 2 seconds elapsed, 12 seconds total ;
 * Must be called after start.  Resets benchmarking. ;
 %bench(end);
+
+* Capture running metrics ;
+%bench(start,data=metrics);  * this will delete work.metrics if it exists ;
+%let rc=%sysfunc(sleep(3));
+%bench(elapsed,data=metrics,message=Option 1); * add current metrics to work.metrics ;
+%let rc=%sysfunc(sleep(5));
+%bench(elapsed,data=metrics,message=Option 2xxx);
+%let rc=%sysfunc(sleep(11));
+%bench(elapsed,data=metrics,message=Option 3yyyyy);
+%bench(end,data=metrics,print=Y);  * prints default metrics output to log ;
 
 -----------------------------------------------------------------------
 Notes:
@@ -74,6 +84,15 @@ benchmarking or printing elapsed times.
 
 Benchmarking a time period greater than 24 hours is "unpredictable".
 
+If you don't like the default metrics output, specify
+%bench(end); or %bench(end,print=N);, then write your own output
+using the metrics dataset that was created.
+
+There may be very slight differences between the output written to the
+log and the output captured in the metrics dataset.  This is likely
+due to precision differences between the %sysevalf macro function and
+the data step.
+
 ---------------------------------------------------------------------*/
 
 %macro bench
@@ -85,6 +104,14 @@ Measures elapsed time between successive invocations.
                /*    If first invocation, start benchmarking.        */
                /*    If subsequent invocation, print elapsed time.   */
                /* Valid values are START ELAPSED END.                */
+,DATA=         /* Output dataset for running metrics (Opt).          */
+               /* If specified, the &_START and &_ELAPSED data are   */
+               /* written out to the specified dataset.              */
+,MESSAGE=      /* Message to include with running metrics (Opt).     */
+               /* If specified, the message is included with the     */
+               /* running metrics.  This parameter is ignored if     */
+               /* DATA= is not specified.                            */
+,PRINT=N       /* Print default metrics to log? (Opt).               */
 );
 
 %local macro parmerr time_elapsed time_total time_elapsed_str time_total_str h m s;
@@ -92,8 +119,17 @@ Measures elapsed time between successive invocations.
 
 %* check input parameters ;
 %parmv(PARM,         _req=0,_words=0,_case=U,_val=START ELAPSED END)
+%parmv(DATA,         _req=0,_words=0,_case=N)
+%parmv(MESSAGE,      _req=0,_words=1,_case=N)
+%parmv(PRINT,        _req=0,_words=0,_case=U,_val=0 1)
 
 %if (&parmerr) %then %goto quit;
+
+%* if print=Y then data must be specified ;
+%if (&print and &data eq ) %then %do;
+  %parmv(_msg=If PRINT=Y then DATA must be specified)
+  %goto quit;
+%end;
 
 %* nested macro for printing ;
 %macro print(_parm);
@@ -124,6 +160,14 @@ Measures elapsed time between successive invocations.
 %if (&parm eq START) %then %do;
    %let _start    = %sysfunc(datetime());
    %let _elapsed  = &_start;
+
+   %* If DATA= was specified then delete existing dataset ;
+   %if (&data ne ) %then %do;
+      %if (%sysfunc(exist(&data))) %then %do;
+         proc delete data=&data;
+         run;
+      %end;
+   %end;
 %end;
 %else
 %if (&parm eq ELAPSED) %then %do;
@@ -132,8 +176,38 @@ Measures elapsed time between successive invocations.
       %goto quit;
    %end;
    %else %do;
-      %print(ELAPSED)
+      %print(ELAPSED);
       %let _elapsed  = %sysfunc(datetime());
+
+      %* If DATA= was specified capture running metrics ;
+      %if (&data ne ) %then %do;
+         %if (%sysfunc(exist(&data))) %then %do;
+            data &data;
+               set &data end=eof;
+               output;
+               if eof then do;
+                  %* do not reorder these lines ;
+                  start=&_start;
+                  elapsed=&_elapsed-current;
+                  current=&_elapsed;
+                  total=total+elapsed;
+                  message="&message";
+                  output;
+               end;
+            run;
+         %end;
+         %else %do;
+            data &data;
+               length start current elapsed total 8 message $200;
+               start=&_start;
+               current=&_elapsed;
+               elapsed=current-start;
+               total=elapsed;
+               message="&message";
+               format start current datetime.;
+            run;
+         %end;
+      %end;
    %end;
 %end;
 %else
@@ -143,25 +217,53 @@ Measures elapsed time between successive invocations.
       %goto quit;
    %end;
    %else %do;
-      %print(END)
+      %print(END);
 
       %* reset benchmarking ;
       %symdel _start _elapsed / nowarn;
+
+      %* if PRINT=Y then print default metrics to log ;
+      %if (&print) %then %do;
+        %let ls=%sysfunc(getoption(ls));
+        options ls=max;
+        data _null_;
+          set &data end=eof;
+          retain maxlen;
+          maxlen=max(length(strip(message)),maxlen);
+          if eof then call symputx("maxlen",maxlen,"L");
+        run;
+        data _null_;
+          set &data end=eof;
+          file log;
+          if _n_=1 then
+          put
+            @1 "Benchmark Metrics:"
+            /
+            @1 "=================="
+          ;
+          put
+            @1 message $&maxlen..
+            +2 "Elapsed:" elapsed 12.4-R
+            +2 "Total:"   total   12.4-R
+          ;
+          if eof then put "0A0D"x @;
+        run;
+        options ls=&ls;
+      %end;
    %end;
 %end;
 %else
 %if (&parm eq ) %then %do;
    %* derive proper parm then recursively call this macro ;
    %if (&_start eq ) %then %do;
-      %bench(start)
+      %bench(start);
    %end;
    %else %do;
-      %bench(elapsed)
+      %bench(elapsed);
    %end;
 %end;
 
 %quit:
-%* if (&parmerr) %then %abort;
 
 %mend;
 

@@ -25,7 +25,7 @@ Change/reason           : Detect when splits have already been put into
                           lines, and add addional ones.
 Program Version #       : 1.1
 
-+====================================================================*/
+=====================================================================*/
 
 /*---------------------------------------------------------------------
 Usage:
@@ -198,7 +198,6 @@ end;
 drop _pos _cols;
 
 %quit:
-%* if (&parmerr) %then %abort;
 
 %mend;
 

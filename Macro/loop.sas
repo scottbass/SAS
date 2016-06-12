@@ -200,7 +200,7 @@ To "carry forward" the value of the iterator across loops, assign it
 Invoke the nested macro "%code" over a list of space separated
 list of items.
 ---------------------------------------------------------------------*/
-(__LIST__      /* Space or character separated list of items (REQ)   */
+(__LIST__      /* Space or character separated list of items (REQ).  */
 ,DLM=%str( )   /* Delimiter character (REQ).  Default is a space.    */
 ,MNAME=code    /* Macro name (Optional).  Default is "%code"         */
 );
@@ -220,14 +220,13 @@ list of items.
 %let __iter__ = 1;
 %let word = %qscan(%superq(__list__),&__iter__,%superq(dlm));
 %do %while (%superq(word) ne %str());
-  %let word=%unquote(&word);
+   %let word=%unquote(&word);
 %&mname  /* do not indent macro call */
    %let __iter__ = %eval(&__iter__+1);
    %let word = %qscan(%superq(__list__),&__iter__,%superq(dlm));
 %end;
 
 %quit:
-%* if (&parmerr) %then %abort;
 
 %mend;
 

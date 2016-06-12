@@ -66,7 +66,6 @@ proc optsave out=&out;
 run;
 
 %quit:
-%* if (&parmerr) %then %abort;
 
 %mend;
 

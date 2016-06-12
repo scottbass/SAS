@@ -16,7 +16,7 @@ Program Version #       : 1.0
 
 =======================================================================
 
-Modification History    : Original version
+Modification History    : 
 
 =====================================================================*/
 
@@ -221,7 +221,6 @@ Creates a macro variable of left/center/right justified text.
 &string
 
 %quit:
-%* if (&parmerr) %then %abort;
 
 %mend;
 

@@ -14,7 +14,7 @@ Program Version #       : 1.0
 
 =======================================================================
 
-Modification History    : Original version
+Modification History    : 
 
 =====================================================================*/
 
@@ -152,7 +152,6 @@ run;
 %if (&_error_ ne 0) %then %symdel dt_beg dt_end / nowarn;
 
 %quit:
-%* if (&parmerr) %then %abort;
 
 %mend;
 

@@ -30,10 +30,10 @@ Program Version #       : 1.1
 Usage:
 
 proc format lib=work.formats;
-  value $chrfmt       "A"="A";
-  value numfmt         2 ="B";
-  invalue $chrinfmt   "C"="C";
-  invalue numinfmt    "D"=4;
+   value $chrfmt       "A"="A";
+   value numfmt         2 ="B";
+   invalue $chrinfmt   "C"="C";
+   invalue numinfmt    "D"=4;
 run;
 
 %fmtlist()
@@ -67,22 +67,22 @@ run;
    if that catalog is in the fmtsearch path.
 
 %fmtlist(catalog=work.formats, type=CF NF)
-  Lists all >>>character formats<<< and >>>numeric formats<<<
-  from the work.formats catalog.
+   Lists all >>>character formats<<< and >>>numeric formats<<<
+   from the work.formats catalog.
 
 %fmtlist(type=NF NI)
-  Lists all >>>numeric formats<<< and >>>numeric informats<<<
-  in the fmtsearch path.
+   Lists all >>>numeric formats<<< and >>>numeric informats<<<
+   in the fmtsearch path.
 
 %fmtlist(catalog=work.formats,details=Y)
-  Prints the DETAILS of all formats in the work.formats catalog,
-  rather than just listing their names,
-  if that catalog is in the fmtsearch path.
+   Prints the DETAILS of all formats in the work.formats catalog,
+   rather than just listing their names,
+   if that catalog is in the fmtsearch path.
 
 %fmtlist(age.*des chr.*,catalog=meta.formats work.formats,details=Y)
-  Prints the DETAILS of formats with names beginning with "age*des" or "chr",
-  in the meta.formats and work.formats catalogs,
-  if those catalogs are in the fmtsearch path.
+   Prints the DETAILS of formats with names beginning with "age*des" or "chr",
+   in the meta.formats and work.formats catalogs,
+   if those catalogs are in the fmtsearch path.
 
 -----------------------------------------------------------------------
 Notes:
@@ -109,7 +109,7 @@ http://support.sas.com/documentation/cdl/en/lefunctionsref/64814/HTML/default/vi
 Specify multiple format names and/or wildcards as a space separated list.
 The PRX "or" operator (|) will be added by the macro.
 
-Specify the CAT= parameter to limit the search to a single catalog in
+Specify the CATALOG= parameter to limit the search to a single catalog in
 the fmtsearch path.  Otherwise, all format catalogs are searched.
 
 Specify the TYPE= parameter to limit the search to one or more format
@@ -162,21 +162,21 @@ Prints contents of one or more format or informat entries
 %* build where clause ;
 %let where=;
 %if (%superq(list) ne ) %then %do;
-  %let temp=%seplist(%superq(list),dlm=|,prefix=\b,suffix=\b);
-  %let temp=%unquote(&temp);
-  %let where=prxmatch("/&temp/io",objname);
+   %let temp=%seplist(%superq(list),dlm=|,prefix=\b,suffix=\b);
+   %let temp=%unquote(&temp);
+   %let where=prxmatch("/&temp/io",objname);
 %end;
 %if (&catalog ne ) %then %do;
-  %let temp=%seplist(&catalog,nest=qq);
-  %let temp=%unquote(&temp);
-  %if (%superq(where) ne ) %then %let where=&where and;
-  %let where=&where catx(".",libname,memname) in (&temp);
+   %let temp=%seplist(&catalog,nest=qq);
+   %let temp=%unquote(&temp);
+   %if (%superq(where) ne ) %then %let where=&where and;
+   %let where=&where catx(".",libname,memname) in (&temp);
 %end;
 %if (&type ne) %then %do;
-  %let temp=%seplist(&type,nest=qq);
-  %let temp=%unquote(&temp);
-  %if (%superq(where) ne ) %then %let where=&where and;
-  %let where=&where fmttype in (&temp);
+   %let temp=%seplist(&type,nest=qq);
+   %let temp=%unquote(&temp);
+   %if (%superq(where) ne ) %then %let where=&where and;
+   %let where=&where fmttype in (&temp);
 %end;
 %let where=%unquote(&where);
 %let flag=%eval(%superq(where) ne );
@@ -184,102 +184,103 @@ Prints contents of one or more format or informat entries
 %* Create view of all the user-defined formats in the current fmtsearch path ;
 %if (not %sysfunc(exist(work.usrfmts,view))) %then %do;
 proc sql;
-  create view work.usrfmts as
-    select
+   create view work.usrfmts as
+   select
       libname,
       memname,
       objname,
       fmtname,
       cats(ifc(substr(fmtname,1,1)="$","C","N"),fmttype) as fmttype length=2
-    from
+   from
       dictionary.formats
-    where
+   where
       libname is not missing
-    order by
+   order by
       libname, memname
-  ;
+   ;
 quit;
 %end;
 
 %* If just listing format names, output to print location ;
 %if (not &details) %then %do;
-  proc sql print;
-    select
-      *
-    from
-      work.usrfmts
-    %if (&flag) %then %do;
-    where
-      &where
-    %end;
-    order by
-      objname
-    ;
-  quit;
-  %if (&sqlobs eq 0) %then %do;
-    %put NOTE: No formats matching the filter were found in the fmtsearch path.;
-    %goto quit;
-  %end;
+   proc sql print;
+      select
+         *
+      from
+         work.usrfmts
+   %if (&flag) %then %do;
+      where
+         &where
+   %end;
+      order by
+         objname
+      ;
+   quit;
+   %if (&sqlobs eq 0) %then %do;
+      %put NOTE: No formats matching the filter were found in the fmtsearch path.;
+      %goto quit;
+   %end;
 %end;
 
 %* Ok, we want the format details, not just the format names ;
 %* We need to process each format catalog in the fmtsearch path individually ;
 %else %do;
-  %* get a list of the format catalogs ;
-  proc sql noprint;
-    select distinct
-      catx(".",libname,memname) into :fmtcats separated by " "
-    from
-      work.usrfmts
-    %if (&flag) %then %do;
-    where
-      &where
-    %end;
-    ;
-  quit;
-  %if (&sqlobs eq 0) %then %do;
-    %put NOTE: No format catalogs matching the filter were found in the fmtsearch path.;
-    %goto quit;
-  %end;
+   %* get a list of the format catalogs ;
+   proc sql noprint;
+      select distinct
+         catx(".",libname,memname) into :fmtcats separated by " "
+      from
+         work.usrfmts
+   %if (&flag) %then %do;
+      where
+         &where
+   %end;
+      ;
+   quit;
+   %if (&sqlobs eq 0) %then %do;
+      %put NOTE: No format catalogs matching the filter were found in the fmtsearch path.;
+      %goto quit;
+   %end;
 
-  %* Now loop over each format catalog ;
-  %macro code;
-    %let formats=;
-    %if (&flag) %then %do;
-      proc sql noprint;
-        select
-          cats(ifc(fmttype in ("CI","NI"),"@",""),fmtname) into :formats separated by " "
-        from
-          work.usrfmts
-        where
-          catx(".",libname,memname)="&word"
-        %if (&flag) %then %do;
-          and
-          &where
-        %end;
-        order by
-          objname
-        ;
-      quit;
-      %if (&sqlobs eq 0) %then %do;
-        %put NOTE: No formats matching the filter were found in the fmtsearch path.;
+   %* Now loop over each format catalog ;
+   %macro code;
+      %let formats=;
+      %if (&flag) %then %do;
+         proc sql noprint;
+            select
+               cats(ifc(fmttype in ("CI","NI"),"@",""),fmtname) into :formats separated by " "
+            from
+               work.usrfmts
+            where
+               catx(".",libname,memname)="&word"
+         %if (&flag) %then %do;
+               and
+               &where
+         %end;
+            order by
+               objname
+            ;
+         quit;
+         %if (&sqlobs eq 0) %then %do;
+            %put NOTE: No formats matching the filter were found in the fmtsearch path.;
+         %end;
       %end;
-    %end;
-    %if (not &flag or &sqlobs ne 0) %then %do;
-      %* Now call PROC FORMAT to print the format details ;
-      title "&word";
-      proc format lib=&word fmtlib page;
-        %if (&formats ne ) %then %do;
-        select &formats;
-        %end;
-      run;
-      title;
-    %end;
-  %mend;
-  %loop(&fmtcats)
+      %if (not &flag or &sqlobs ne 0) %then %do;
+         %* Now call PROC FORMAT to print the format details ;
+         title "&word";
+         proc format lib=&word fmtlib page;
+         %if (&formats ne ) %then %do;
+            select &formats;
+         %end;
+         run;
+         title;
+      %end;
+   %mend;
+   %loop(&fmtcats)
 %end;
 
 %quit:
+
 %mend;
 
 /******* END OF FILE *******/

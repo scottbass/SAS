@@ -14,7 +14,7 @@ Program Version #       : 1.0
 
 ======================================================================
 
-Modification History    : Original version
+Modification History    : 
 
 ====================================================================*/
 
@@ -69,17 +69,17 @@ function-style macro for greater syntax flexibility.
 For more control, use the SQL dictionary tables.  For example:
 
 proc sql noprint;
-  select name into :variables separated by " "
-  from dictionary.columns
-  where
-    libname="SASHELP"
-    and
-    memname="SHOES"
-    and
-    format like "DOLLAR%"
-  order by
-    name descending
-  ;
+   select name into :variables separated by " "
+   from dictionary.columns
+   where
+      libname="SASHELP"
+      and
+      memname="SHOES"
+      and
+      format like "DOLLAR%"
+   order by
+      name descending
+   ;
 quit;
 %put &variables;
 
@@ -122,67 +122,70 @@ filter
 
 %* make sure the filter (if specified) is valid ;
 %if (%superq(filter) ne ) %then %do;
-  %if (not %sysfunc(prxmatch(/_NUMERIC_|_CHARACTER_/io,%superq(filter)))) %then %do;
-    %let rx=%sysfunc(prxparse(/%superq(filter)/io));
-    %if (&rx le 0) %then %do;
-      %parmv(_msg=Invalid PRXMATCH regular expression: %super(filter))
-      %goto %quit;
-    %end;
-  %end;
+   %if (not %sysfunc(prxmatch(/_NUMERIC_|_CHARACTER_/io,%superq(filter)))) %then %do;
+      %let rx=%sysfunc(prxparse(/%superq(filter)/io));
+      %if (&rx le 0) %then %do;
+         %parmv(_msg=Invalid PRXMATCH regular expression: %super(filter))
+         %goto %quit;
+      %end;
+   %end;
 %end;
 
 %* open input dataset ;
 %let dsid=%sysfunc(open(&data));
 %if (&dsid le 0) %then %do;
-  %parmv(_msg=Unable to open &data dataset)
-  %goto quit;
+   %parmv(_msg=Unable to open &data dataset)
+   %goto quit;
 %end;
 
 %* get number of variables ;
 %let varnum=%sysfunc(attrn(&dsid,nvars));
 %if (&varnum le 0) %then %do;
-  %parmv(_msg=Unable to obtain the number of variables in &data dataset)
-  %goto quit;
+   %parmv(_msg=Unable to obtain the number of variables in &data dataset)
+   %goto quit;
 %end;
 
 %* was exclude specified? ;
 %if (not &exclude) %then
-  %let oper=;
+   %let oper=;
 %else
-  %let oper=NOT;
+   %let oper=NOT;
 
 %* return list of variables that match the filter ;
 %let varlist=;
 %do i=1 %to &varnum;
-  %let varname=%sysfunc(varname(&dsid,&i));
-  %if (%sysfunc(prxmatch(/\b_NUMERIC_\b/io,%superq(filter)))) %then %do;
-    %if (%sysfunc(vartype(&dsid,&i)) eq N) %then
+   %let varname=%sysfunc(varname(&dsid,&i));
+   %if (%sysfunc(prxmatch(/\b_NUMERIC_\b/io,%superq(filter)))) %then %do;
+      %if (%sysfunc(vartype(&dsid,&i)) eq N) %then
+         %let varlist=&varlist &varname;
+   %end;
+   %else
+   %if (%sysfunc(prxmatch(/\b_CHARACTER_\b/io,%superq(filter)))) %then %do;
+      %if (%sysfunc(vartype(&dsid,&i)) eq C) %then
+         %let varlist=&varlist &varname;
+   %end;
+   %else
+   %if (%superq(filter) ne ) %then %do;
+      %if &oper (%sysfunc(prxmatch(&rx,&varname))) %then
+         %let varlist=&varlist &varname;
+   %end;
+   %else %do;
       %let varlist=&varlist &varname;
-  %end;
-  %else
-  %if (%sysfunc(prxmatch(/\b_CHARACTER_\b/io,%superq(filter)))) %then %do;
-    %if (%sysfunc(vartype(&dsid,&i)) eq C) %then
-      %let varlist=&varlist &varname;
-  %end;
-  %else
-  %if (%superq(filter) ne ) %then %do;
-    %if &oper (%sysfunc(prxmatch(&rx,&varname))) %then
-      %let varlist=&varlist &varname;
-  %end;
-  %else %do;
-    %let varlist=&varlist &varname;
-  %end;
+   %end;
 %end;
 
 %if (&dlm eq S) %then %do;
+/* do not indent */
 &varlist
 %end;
 %else
 %if (&dlm eq C) %then %do;
+/* do nto indent */
 %seplist(&varlist)
 %end;
 
 %quit:
+
 %let dsid=%sysfunc(close(&dsid));
 %if (&rx ne ) %then %syscall prxfree(rx);
 

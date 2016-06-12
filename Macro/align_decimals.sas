@@ -16,7 +16,7 @@ Program Version #       : 1.0
 
 =======================================================================
 
-Modification History    : Original version
+Modification History    : 
 
 =====================================================================*/
 
@@ -422,7 +422,6 @@ end;
 %* end of macro logic ;
 
 %quit:
-%* if (&parmerr) %then %abort;
 
 %mend;
 

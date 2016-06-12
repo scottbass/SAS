@@ -13,11 +13,11 @@ Program Version #       : 1.0
 
 =======================================================================
 
-Modification History    : Original version
+Modification History    : 
 
 Programmer              : Scott Bass
 Date                    : 30NOV2012
-Change/reason           : Changed to use SPDEWORK library for better
+Change/reason           : Changed to use WORKSPDE library for better
                           performance
 Program Version #       : 1.1
 
@@ -347,21 +347,21 @@ data &cntlin;
 run;
 
 %if (&dedup) %then %do;
-  %let cntlin=_crtfmt_._cntlin_nodup_;
+   %let cntlin=_crtfmt_._cntlin_nodup_;
 
-  %* remove duplicate ranges from input dataset ;
-  proc sort data=_crtfmt_._cntlin_ out=&cntlin dupout=_crtfmt_._cntlin_dupout_ nodupkey;
-     by fmtname start;
-  run;
+   %* remove duplicate ranges from input dataset ;
+   proc sort data=_crtfmt_._cntlin_ out=&cntlin dupout=_crtfmt_._cntlin_dupout_ nodupkey;
+      by fmtname start;
+   run;
 
-  %* print message if duplicate observations were deleted ;
-  %if (%nobs(_crtfmt_._cntlin_dupout_) gt 0) %then %do;
-     %* put %str(WAR)NING:  Duplicate ranges were detected in the &DATA dataset.;
-     %put %str(NO)TE:  Duplicate ranges were detected in the &DATA dataset.;
+   %* print message if duplicate observations were deleted ;
+   %if (%nobs(_crtfmt_._cntlin_dupout_) gt 0) %then %do;
+      %* put %str(WAR)NING:  Duplicate ranges were detected in the &DATA dataset.;
+      %put %str(NO)TE:  Duplicate ranges were detected in the &DATA dataset.;
 
-     %* Uncomment the below line if calling this macro from a DIS job ;
-     %*rcSet(4);
-  %end;
+      %* Uncomment the below line if calling this macro from a DIS job ;
+      %*rcSet(4);
+   %end;
 %end;
 
 %* create format(s) ;
@@ -369,7 +369,6 @@ proc format cntlin=&cntlin lib=&LIB..&CAT;
 quit;
 
 %quit:
-%* if (&parmerr) %then %abort;
 
 %mend;
 

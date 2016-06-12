@@ -15,7 +15,7 @@ Program Version #       : 1.0
 
 =======================================================================
 
-Modification History    : Original version
+Modification History    : 
 
 =====================================================================*/
 
@@ -71,31 +71,31 @@ a stored process:
 
 options mprint;
 %macro stp;
-  %local where;
-  %let where=%sysfunc(sum(&region_count,&product_count,&subsidiary_count));
-  options noserror nomerror;
-  data subset;
-    set sashelp.shoes;
-    %if (&where) %then %do;
-      where 1
-    %end;
-    %if (&region_count) %then %do;
-      and region in (%stp_seplist(region))
-    %end;
-    %if (&product_count) %then %do;
-      and product in (%stp_seplist(product))
-    %end;
-    %if (&subsidiary_count) %then %do;
-      and subsidiary in (%stp_seplist(subsidiary))
-    %end;
-    %if (&where) %then %do;
-      ;
-    %end;
-  run;
-  options serror merror;
+   %local where;
+   %let where=%sysfunc(sum(&region_count,&product_count,&subsidiary_count));
+   options noserror nomerror;
+   data subset;
+      set sashelp.shoes;
+      %if (&where) %then %do;
+         where 1
+      %end;
+      %if (&region_count) %then %do;
+         and region in (%stp_seplist(region))
+      %end;
+      %if (&product_count) %then %do;
+         and product in (%stp_seplist(product))
+      %end;
+      %if (&subsidiary_count) %then %do;
+         and subsidiary in (%stp_seplist(subsidiary))
+      %end;
+      %if (&where) %then %do;
+         ;
+      %end;
+   run;
+   options serror merror;
 
-  proc print;
-  run;
+   proc print;
+   run;
 %mend;
 %stp
 
@@ -163,10 +163,10 @@ separated list output.
 %* if count was not explicitly specified, a macro variable <mvar>_count ;
 %* should exist in the global environment.  if so, resolve it, otherwise assume 1 ;
 %if (&count eq ) %then %do;
-  %if (%symexist(&&mvar._count)) %then
-    %let count=&&&mvar._count;
-  %else
-    %let count=1;
+   %if (%symexist(&&mvar._count)) %then
+      %let count=&&&mvar._count;
+   %else
+      %let count=1;
 %end;
 
 %* compensate for the absolute braindead way SAS implemented a single element macro "array" ;
@@ -183,13 +183,16 @@ separated list output.
 %* (for example Savings&Loan, %change), then set the options noserror nomerror ;
 %* outside this macro.  I cannot set it here since this is a function style macro ;
 %do i=1 %to &count;
-  %if (&i gt 1) %then %let string=&string.&indlm;
-  %let temp=&&&mvar&i;
-  %if (&upper eq 1) %then %let temp=%upcase(&temp);
-  %let string=&string.&temp;
+   %if (&i gt 1) %then %let string=&string.&indlm;
+   %let temp=&&&mvar&i;
+   %if (&upper eq 1) %then %let temp=%upcase(&temp);
+   %let string=&string.&temp;
 %end;
 
 %seplist(%superq(string),indlm=&indlm,dlm=&dlm,nest=&nest)
 
 %quit:
+
 %mend;
+
+/******* END OF FILE *******/

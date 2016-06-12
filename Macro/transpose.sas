@@ -13,7 +13,7 @@ Program Version #       : 1.0
 
 =======================================================================
 
-Modification History    : Original version
+Modification History    : 
 
 +====================================================================*/
 
@@ -332,7 +332,6 @@ run;
 %end;
 
 %quit:
-%* if (&parmerr) %then %abort;
 
 %mend;
 

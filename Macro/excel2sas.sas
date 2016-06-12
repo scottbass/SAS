@@ -504,7 +504,6 @@ UNIX processing...
 %kill(delete=_select_ _exclude_ _out_ _worksheets_all_ _worksheets_)
 
 %quit:
-%* if (&parmerr) %then %abort;
 
 %mend;
 

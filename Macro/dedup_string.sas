@@ -13,7 +13,7 @@ Program Version #       : 1.0
 
 ======================================================================
 
-Modification History    : Original version
+Modification History    : 
 
 ====================================================================*/
 
@@ -100,7 +100,6 @@ end;
 drop __temp __word __i;
 
 %quit:
-%* if (&parmerr) %then %abort;
 
 %mend;
 

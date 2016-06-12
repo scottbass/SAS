@@ -135,7 +135,6 @@ Returns the full path or filename of the currently executing program.
 %end;
 
 %quit:
-%* if (&parmerr) %then %abort;
 
 %mend;
 

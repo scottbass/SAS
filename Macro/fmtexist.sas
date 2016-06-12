@@ -14,7 +14,7 @@ Program Version #       : 1.0
 
 =======================================================================
 
-Modification History    : Original version
+Modification History    : 
 
 =====================================================================*/
 
@@ -115,7 +115,6 @@ Checks the format searchpath for the existence of a format or informat
 &found
 
 %quit:
-%* if (&parmerr) %then %abort;
 
 %mend;
 

@@ -138,11 +138,11 @@ Deletes specified contents from a library
 
 %* If DATA was specified, parse into LIB and DELETE ;
 %if (&data ne ) %then %do;
-  %let delete=%scan(&data,2,.);  %* two level name ;
-  %if (&delete eq ) %then
-    %let delete=%scan(&data,1,.); %* one level name ;
-  %else
-    %let lib=%scan(&data,1,.);
+   %let delete=%scan(&data,2,.);  %* two level name ;
+   %if (&delete eq ) %then
+      %let delete=%scan(&data,1,.); %* one level name ;
+   %else
+      %let lib=%scan(&data,1,.);
 %end;
 
 %* if library was not specified, use USER= option, then use WORK ;
@@ -178,7 +178,6 @@ Deletes specified contents from a library
 %end;
 
 %quit:
-%* if (&parmerr) %then %abort;
 
 %mend;
 

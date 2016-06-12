@@ -13,7 +13,7 @@ Program Version #       : 1.0
 
 =======================================================================
 
-Modification History    : Original version
+Modification History    : 
 
 =====================================================================*/
 
@@ -34,10 +34,10 @@ Usage:
 * this dataset is used to display a confirmation message to the user ;
 * this dataset is set outside this macro ;
 data message;
-  infile datalines truncover;
-  input message $200.;
-  keep message;
-  datalines4;
+   infile datalines truncover;
+   input message $200.;
+   keep message;
+   datalines4;
 Job &batch_jobname submitted at %sysfunc(strip(%sysfunc(datetime(),datetime18.))).
 You will receive an email when the job finishes.
 ;;;;
@@ -50,23 +50,23 @@ run;
 
 * call this macro, overriding default values ;
 %stp_batch_submit(
-  message=my_message_dataset
-  ,mvars=name like 'BATCH_' or name in ('FOO','BAR','BLAH')
-  ,sas=path_to_sas_executable
-  ,config=path_to_sas_config_file
-  ,pgm=path_to_sas_program_file
-  ,log=path_to_sas_log_file
-  ,lst=path_to_sas_print_file
-  ,options=any desired SAS invocation options
-  ,timeout=300
+   message=my_message_dataset
+   ,mvars=name like 'BATCH_' or name in ('FOO','BAR','BLAH')
+   ,sas=path_to_sas_executable
+   ,config=path_to_sas_config_file
+   ,pgm=path_to_sas_program_file
+   ,log=path_to_sas_log_file
+   ,lst=path_to_sas_print_file
+   ,options=any desired SAS invocation options
+   ,timeout=300
 );
 
 =======================================================================
 
 * As an alternative to a message dataset, you can also use an external file ;
 %stp_batch_submit(
-  messagefile=C:\Temp\message.html
-  ,config=path_to_sas_config_file
+   messagefile=C:\Temp\message.html
+   ,config=path_to_sas_config_file
 );
 
 -----------------------------------------------------------------------
@@ -168,8 +168,8 @@ Submit a SAS batch program from a Stored Process
 %* If both CONFIG and PGM are blank, abort to prevent a DMS session ;
 %* from being launched on the server ;
 %if (%superq(config) eq ) and (%superq(pgm) eq ) %then %do;
-  %parmv(_msg=%str(ERR)OR: Either CONFIG or PGM must be specified)
-  %goto quit;
+   %parmv(_msg=%str(ERR)OR: Either CONFIG or PGM must be specified)
+   %goto quit;
 %end;
 
 /*
@@ -184,7 +184,7 @@ Create a Stored Process (STP) session, which allocates the temporary SAVE librar
 This library is used to pass parameters between the STP and the batch job.
 */
 %if (%sysfunc(libref(SAVE)) ne 0) %then %do;
-  %let rc=%sysfunc(stpsrv_session(create,&timeout));
+   %let rc=%sysfunc(stpsrv_session(create,&timeout));
 %end;
 
 /*
@@ -203,11 +203,11 @@ If a messagefile was specified, create a message dataset from that file.
 Bummer you cannot use cards/datalines in a macro.
 */
 %if (not %sysfunc(exist(&message)) or (&messagefile ne )) %then %do;
-  %if (&messagefile eq ) %then %do;
-    data &message;
-      length message $200 buffer $32767;
-      keep message;
-      buffer='
+   %if (&messagefile eq ) %then %do;
+      data &message;
+         length message $200 buffer $32767;
+         keep message;
+         buffer='
 | <html>
 | <head>
 | <script type="text/javascript">
@@ -218,23 +218,23 @@ Bummer you cannot use cards/datalines in a macro.
 | <body>
 | </body>
 | </html>
-      ';
-      i=1;
-      do while (scan(buffer,i,"|") ne "");
-        message=left(scan(buffer,i,"|"));
-        output;
-        i+1;
-      end;
-    run;
-  %end;
-  %else %do;
-    data &message;
-      length message $32767;
-      infile "&messagefile";
-      input;
-      message=_infile_;
-    run;
-  %end;
+         ';
+         i=1;
+         do while (scan(buffer,i,"|") ne "");
+            message=left(scan(buffer,i,"|"));
+            output;
+            i+1;
+         end;
+      run;
+   %end;
+   %else %do;
+      data &message;
+         length message $32767;
+         infile "&messagefile";
+         input;
+         message=_infile_;
+      run;
+   %end;
 %end;
 
 /*
@@ -243,15 +243,15 @@ This dataset will be used by the batch job to recreate the macro variables.
 */
 %if (%sysfunc(exist(save.parameters))) %then %lock(member=save.parameters,action=lock);
 proc sql noprint;
-  create table save.parameters as
-    select
+   create table save.parameters as
+   select
       name
       ,value
-    from
+   from
       dictionary.macros
-    where
+   where
       &mvars
-  ;
+   ;
 quit;
 %lock(member=save.parameters,action=clear)
 
@@ -295,13 +295,13 @@ but are HTML tokens instead.
 %let options=%sysfunc(getoption(merror,keyword)) %sysfunc(getoption(serror,keyword));
 options nomerror noserror;
 data work._message_ (compress=char);
-  %* pick a variable not likely to be in the source dataset ;
-  length ________ $32767;
-  set &message;
-  %* there should only be one variable, but this construct ;
-  %* allows the variable name to be anything ;
-  ________=cats(of _char_);
-  ________=resolve(________);
+   %* pick a variable not likely to be in the source dataset ;
+   length ________ $32767;
+   set &message;
+   %* there should only be one variable, but this construct ;
+   %* allows the variable name to be anything ;
+   ________=cats(of _char_);
+   ________=resolve(________);
 run;
 options &options;
 
@@ -309,12 +309,13 @@ options &options;
 Now display the confirmation message to the user
 */
 data _null_;
-  file _webout;
-  set work._message_;
-  put ________;
+   file _webout;
+   set work._message_;
+   put ________;
 run;
 
 %quit:
+
 %mend;
 
 /******* END OF FILE *******/

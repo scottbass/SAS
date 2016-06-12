@@ -43,6 +43,7 @@ Does not protect against {\} characters in AUTHOR, TITLE, SUBJECT or
 KEYWORDS parameters.
 
 ----------------------------------------------------------------------*/
+
 %local macro parmerr m1 m2 m3 m4 i;
 
 %parmv(orient,       _req=0,_val=L LANDSCAPE P PORTRAIT,_def=L)
@@ -52,6 +53,7 @@ KEYWORDS parameters.
 %parmv(toc,          _req=0,_words=0,_case=N,_val=0 1)
 
 %if (&parmerr) %then %goto quit;
+
 %*----------------------------------------------------------------------
 Get a value of the AUTHOR info tag
 -----------------------------------------------------------------------;
@@ -194,6 +196,9 @@ data _null_;
   put string $varying. len;
 run;
 %put &_err;
+
 %quit:
+
 %mend;
 
+/******* END OF FILE *******/
