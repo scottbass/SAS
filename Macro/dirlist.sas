@@ -85,29 +85,32 @@ Notes:
 This macro is most useful when ALLOWXCMD=N and o/s system commands are
 disabled.
 
+This macro does not currently support directory recursion.
+
 The FILTER parameter must be a syntactically correct SAS if statement.
 
 The TYPE parameter is just a specialized implementation of a FILTER.
 
+Note that SAS does not return datetime information for a directory,
+even though Windows explorer and the dir command do.
+
 This macro was developed under Windows.  
-To see the file options available on your o/s, run this code:
+To see the file options SAS returns for your o/s, run this code,
+then modify this macro as required:
 
    data _null_;
-    length optname optvalue $200;
-    fname="C:\Windows\explorer.exe"; * replace as required ;
-    rc=filename('myfile',fname);
-    fid=fopen('myfile');
-    do i=1 to foptnum(fid);
+      length optname optvalue $200;
+      fname="C:\Windows\explorer.exe"; * replace as required ;
+      rc=filename('myfile',fname);
+      fid=fopen('myfile');
+      do i=1 to foptnum(fid);
          optname=foptname(fid,i);
          optvalue=finfo(fid,optname);
          put optname= optvalue=;
-    end;
-    rc=fclose(fid);
-    rc=filename('myfile','');
+      end;
+      rc=fclose(fid);
+      rc=filename('myfile','');
    run;
-
-Note that SAS does not return datetime information for a directory,
-even though Windows explorer and the dir command do.
 
 ---------------------------------------------------------------------*/
 
