@@ -1,4 +1,4 @@
-/*====================================================================
+/*=====================================================================
 Program Name            : hash_split_dataset.sas
 Purpose                 : Use hash object to split dataset into
                           multiple datasets
@@ -12,13 +12,38 @@ Originally Written by   : Scott Bass
 Date                    : 12MAY2010
 Program Version #       : 1.0
 
-======================================================================
+=======================================================================
 
-Modification History    : 
+Copyright (c) 2016 Scott Bass
 
-+===================================================================*/
+https://github.com/scottbass/SAS/tree/master/Macro
 
-/*--------------------------------------------------------------------
+Permission is hereby granted, free of charge, to any person obtaining a
+copy of this software and associated documentation files (the
+"Software"), to deal in the Software without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of the Software, and to
+permit persons to whom the Software is furnished to do so, subject to
+the following conditions:
+
+The above copyright notice and this permission notice shall be included
+in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+=======================================================================
+
+Modification History    : Original version
+
++====================================================================*/
+
+/*---------------------------------------------------------------------
 Usage:
 
 data source;
@@ -45,7 +70,7 @@ proc format;
    ;
 run;
 
-----------------------------------------------------------------------
+-----------------------------------------------------------------------
 
 %hash_split_dataset(data=source, out=%str(cats("OUT_",key1)), by=key1);
 
@@ -58,7 +83,7 @@ run;
 This will result in the output datasets OUT_A, OUT_B, OUT_C, OUT_1, OUT_2, OUT_3
 and FOO, BAR, and BLAH respectively.
 
-----------------------------------------------------------------------
+-----------------------------------------------------------------------
 Notes:
 
 The source dataset must be sorted or indexed on the byvar.
@@ -68,21 +93,21 @@ desired dynamic SAS output dataset name.  Typically this would be
 cats("Prefix",key_var), put could also be something like
 put(key_var,some_format.) or cats("Prefix",put(key_var,some_format.))
 
---------------------------------------------------------------------*/
+---------------------------------------------------------------------*/
 
 %macro hash_split_dataset
-/*--------------------------------------------------------------------
+/*---------------------------------------------------------------------
 Use hash object to split dataset into multiple datasets
---------------------------------------------------------------------*/
-(DATA=         /* Source dataset (REQ).                             */
-,OUT=          /* SAS code fragment that defines the dynamic, data  */
-               /* driven output dataset names (REQ).                */
-,BY=           /* Grouping variable for output dataset observations */
-               /* (REQ).  Only a single variable can be specified.  */
-,VARS=_ALL_    /* Desired output variables (Opt).                   */
-               /* Default is all variables in the source dataset.   */
-               /* Analogous to keep statement on the output dataset.*/
-               /* If set to blank only the by variable is output.   */
+---------------------------------------------------------------------*/
+(DATA=         /* Source dataset (REQ).                              */
+,OUT=          /* SAS code fragment that defines the dynamic, data   */
+               /* driven output dataset names (REQ).                 */
+,BY=           /* Grouping variable for output dataset observations  */
+               /* (REQ).  Only a single variable can be specified.   */
+,VARS=_ALL_    /* Desired output variables (Opt).                    */
+               /* Default is all variables in the source dataset.    */
+               /* Analogous to keep statement on the output dataset. */
+               /* If set to blank only the by variable is output.    */
 );
 
 %local macro parmerr;
@@ -113,9 +138,8 @@ Use hash object to split dataset into multiple datasets
 %* create sorted view of input dataset ;
 proc sql noprint;
    create view _sorted_ as
-   select * 
-   from &data 
-   order by &by;
+      select * from &data order by &by
+   ;
 quit;
 
 %* use a hash object to split a dataset based on the grouping variable ;
@@ -141,6 +165,7 @@ run;
 %kill(delete=_sorted_)
 
 %quit:
+%* if (&parmerr) %then %abort;
 
 %mend;
 

@@ -14,7 +14,32 @@ Program Version #       : 1.0
 
 =======================================================================
 
-Modification History    : 
+Copyright (c) 2016 Scott Bass
+
+https://github.com/scottbass/SAS/tree/master/Macro
+
+Permission is hereby granted, free of charge, to any person obtaining a
+copy of this software and associated documentation files (the
+"Software"), to deal in the Software without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of the Software, and to
+permit persons to whom the Software is furnished to do so, subject to
+the following conditions:
+
+The above copyright notice and this permission notice shall be included
+in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+=======================================================================
+
+Modification History    : Original version
 
 =====================================================================*/
 
@@ -36,8 +61,8 @@ run;
 -----------------------------------------------------------------------
 Notes:
 
-This macro must be used in a context valid for a function call,
-eg. inside a data step.
+This macro must be used inside a data step, in a context valid
+for a function call,
 
 It returns an RVALUE, so it must be assigned to a variable,
 i.e. be called on the right hand side of an equals sign.
@@ -63,7 +88,7 @@ based on a reference date.
 %let macro = &sysmacroname;
 
 %* set default end date if it was not specified ;
-%if (%superq(enddate) eq ) %then %let enddate = %sysfunc(today());
+%if (%superq(enddate) = %str( )) %then %let enddate = %sysfunc(today());
 
 %* check input parameters ;
 %parmv(BEGDATE,      _req=1,_words=0)
@@ -85,6 +110,7 @@ based on a reference date.
 %end;
 
 %quit:
+%* if (&parmerr) %then %abort;
 
 %mend;
 

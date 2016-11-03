@@ -13,6 +13,31 @@ Program Version #       : 1.0
 
 =======================================================================
 
+Copyright (c) 2016 Scott Bass
+
+https://github.com/scottbass/SAS/tree/master/Macro
+
+Permission is hereby granted, free of charge, to any person obtaining a
+copy of this software and associated documentation files (the
+"Software"), to deal in the Software without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of the Software, and to
+permit persons to whom the Software is furnished to do so, subject to
+the following conditions:
+
+The above copyright notice and this permission notice shall be included
+in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+=======================================================================
+
 Modification History    :
 
 =====================================================================*/
@@ -21,19 +46,19 @@ Modification History    :
 Usage:
 
 %export(
-   data=sashelp.class, 
+   data=sashelp.class,
    file="C:\Temp\file.csv"
 );
 
-Creates C:\Temp\file.csv as a comma separated values file 
+Creates C:\Temp\file.csv as a comma separated values file
    (default output file format).
 Aborts if C:\Temp\file.csv already exists.
 
 =======================================================================
 
 %export(
-   data=sashelp.class, 
-   file="C:\Temp\file.csv", 
+   data=sashelp.class,
+   file="C:\Temp\file.csv",
    dbms=csv
 );
 
@@ -44,9 +69,9 @@ Aborts if C:\Temp\file.csv already exists.
 =======================================================================
 
 %export(
-   data=sashelp.class, 
-   file="C:\Temp\file.csv", 
-   dbms=csv, 
+   data=sashelp.class,
+   file="C:\Temp\file.csv",
+   dbms=csv,
    replace=Y
 );
 
@@ -55,9 +80,9 @@ Overwrites C:\Temp\file.csv if it already exists.
 =======================================================================
 
 %export(
-   data=sashelp.class, 
-   file="C:\Temp\file.tdf", 
-   dbms=tab, 
+   data=sashelp.class,
+   file="C:\Temp\file.tdf",
+   dbms=tab,
    replace=Y
 );
 
@@ -66,9 +91,9 @@ Creates C:\Temp\file.tdf as a tab delimited file.
 =======================================================================
 
 %export(
-   data=sashelp.class, 
-   file="C:\Temp\file.txt", 
-   dbms=dlm, 
+   data=sashelp.class,
+   file="C:\Temp\file.txt",
+   dbms=dlm,
    replace=Y
 );
 
@@ -78,10 +103,10 @@ Creates C:\Temp\file.txt as a space delimited file
 =======================================================================
 
 %export(
-   data=sashelp.class, 
-   file="C:\Temp\file.txt", 
-   dbms=dlm, 
-   replace=Y, 
+   data=sashelp.class,
+   file="C:\Temp\file.txt",
+   dbms=dlm,
+   replace=Y,
    delimiter=|
 );
 
@@ -92,10 +117,10 @@ as the field delimiter.
 =======================================================================
 
 %export(
-   data=sashelp.class, 
-   file="C:\Temp\file.txt", 
-   dbms=dlm, 
-   replace=Y, 
+   data=sashelp.class,
+   file="C:\Temp\file.txt",
+   dbms=dlm,
+   replace=Y,
    dlm=|
 );
 
@@ -113,9 +138,9 @@ data class;
 run;
 
 %export(
-   data=sashelp.class, 
-   file="C:\Temp\file.txt", 
-   dbms=dlm, 
+   data=sashelp.class,
+   file="C:\Temp\file.txt",
+   dbms=dlm,
    delimiter=|,
    replace=Y,
    label=Y
@@ -127,9 +152,9 @@ Uses the labels from the data set for the header column name
 =======================================================================
 
 %export(
-   data=sashelp.class, 
+   data=sashelp.class,
    file="C:\Temp\file.txt"
-   dbms=dlm, 
+   dbms=dlm,
    delimiter=|,
    replace=Y,
    header=N
@@ -143,9 +168,9 @@ Does not write a header row.
 filename temp temp;
 
 %export(
-   data=sashelp.class, 
+   data=sashelp.class,
    file=temp
-   dbms=dlm, 
+   dbms=dlm,
    delimiter=|
 );
 
@@ -160,9 +185,9 @@ Writes sashelp.class to the fileref temp.
 =======================================================================
 
 %export(
-   data=sashelp.class, 
+   data=sashelp.class,
    file="C:\Temp\file.txt
-   dbms=dlm, 
+   dbms=dlm,
    delimiter=|,
    replace=Y,
    header=Y,
@@ -175,15 +200,14 @@ Use if your combined output linesize overflows 32767 characters.
 -----------------------------------------------------------------------
 Notes:
 
-One of the main reasons for this macro is that PROC EXPORT puts 
+This code is based on (i.e. virtually copied from):
+https://communities.sas.com/t5/ODS-and-Base-Reporting/How-to-use-labels-in-proc-export-or-create-tab-dlm-file-using/m-p/76789#M8698
+
+One of the main reasons for this macro is that PROC EXPORT puts
 unwanted double-quotes around the header field names when the LABEL
 option is used.
 
 This macro also allows specifying an output logical record length.
-
-This code is based on (i.e. virtually copied from):
-https://communities.sas.com/t5/ODS-and-Base-Reporting/How-to-use-labels-in-proc-export-or-create-tab-dlm-file-using/m-p/76789#M8698
-Full attribution is given to the author of that post.
 
 ---------------------------------------------------------------------*/
 
@@ -269,12 +293,12 @@ Replacement macro for PROC EXPORT.
    %else
    %if (&DBMS eq DLM) %then %let _dlm = %str(" ");
 %end;
-   
+
 %* does the output file exist? ;
 %let _exist=0;
 
 %* quoted physical file ;
-%if (%sysfunc(indexc(%superq(file),%str(%"%')))) %then %do;  
+%if (%sysfunc(indexc(%superq(file),%str(%"%')))) %then %do;
    %let _type=FILE;
    %let _exist=%sysfunc(fileexist(%superq(file)));
 %end;
@@ -333,7 +357,6 @@ return;
 %end;
 
 run;
-
 %quit:
 
 %mend;

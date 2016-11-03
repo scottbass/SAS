@@ -1,4 +1,4 @@
-/*====================================================================
+/*=====================================================================
 Program Name            : hash_lookup.sas
 Purpose                 : Lookup satellite variables from a hash object.
 SAS Version             : SAS 9.1.3
@@ -11,7 +11,32 @@ Originally Written by   : Scott Bass
 Date                    : 12MAY2010
 Program Version #       : 1.0
 
-======================================================================
+=======================================================================
+
+Copyright (c) 2016 Scott Bass
+
+https://github.com/scottbass/SAS/tree/master/Macro
+
+Permission is hereby granted, free of charge, to any person obtaining a
+copy of this software and associated documentation files (the
+"Software"), to deal in the Software without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of the Software, and to
+permit persons to whom the Software is furnished to do so, subject to
+the following conditions:
+
+The above copyright notice and this permission notice shall be included
+in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+=======================================================================
 
 Modification History    :
 
@@ -25,9 +50,9 @@ Date                    : 04FEB2016
 Change/reason           : Added hashname option.
 Program Version #       : 1.3
 
-+===================================================================*/
++====================================================================*/
 
-/*--------------------------------------------------------------------
+/*---------------------------------------------------------------------
 Usage:
 
 See Usage in %hash_define macro header.
@@ -121,7 +146,7 @@ run;
 proc print;
 run;
 
-----------------------------------------------------------------------
+-----------------------------------------------------------------------
 Notes:
 
 Use %hash_define to load the lookup dataset(s).  This sets the
@@ -145,7 +170,7 @@ in the return code.  In other words:
       and the return code is _rc_myhash, NOT _rc__myhash.
 
 By default a lookup will be done across all hash objects defined by the
-%hash_define macro.  Use either the hashnum= or hashname= option 
+%hash_define macro.  Use either the hashnum= or hashname= option
 to limit the lookup to a single hash object.
 
 If the LOOKUP parameter is specified:
@@ -154,8 +179,8 @@ If the LOOKUP parameter is specified:
    statement syntax which is used to further subset additional items
    which match the lookup key.
 
-   You would normally also specify the HASHNUM or HASHNAME parameter, 
-   unless the logic criteria for all lookups was identical 
+   You would normally also specify the HASHNUM or HASHNAME parameter,
+   unless the logic criteria for all lookups was identical
    (highly unlikely).
 
    The HASHNUM associated with a LOOKUP parameter lookup must be
@@ -176,28 +201,28 @@ If the LOOKUP parameter is specified:
    parameter, which should be a data step label marking the start of your
    derived variables.
 
---------------------------------------------------------------------*/
+---------------------------------------------------------------------*/
 
 %macro hash_lookup
-/*--------------------------------------------------------------------
+/*---------------------------------------------------------------------
 Lookup satellite variables from a hash object
---------------------------------------------------------------------*/
-(HASHNUM=      /* Limit lookup to a specific hash by number (Opt).  */
-,HASHNAME=     /* Limit lookup to a specific hash by name (Opt).    */
-,LOOKUP=       /* Perform a multidata item lookup? (Opt).           */
-               /* If specified, then this criteria is used to       */
-               /* perform addtional multidata item lookups          */
-               /* and filter the results.                           */
-,LINK=         /* Link to additional variable derivations? (Opt).   */
-               /* If specified, it must be a data step link label   */
-               /* defined outside this macro that marks the start   */
-               /* of the additional variable derivations.           */
-,RETURN=N      /* Issue a return statement? (REQ).                  */
-               /* Default value is NO.  Valid values are:           */
-               /* 0 1 OFF N NO F FALSE and ON Y YES T TRUE          */
-               /* OFF N NO F FALSE and ON Y YES T TRUE              */
-               /* (case insensitive) are acceptable aliases for     */
-               /* 0 and 1 respectively.                             */
+---------------------------------------------------------------------*/
+(HASHNUM=      /* Limit lookup to a specific hash by number (Opt).   */
+,HASHNAME=     /* Limit lookup to a specific hash by name (Opt).     */
+,LOOKUP=       /* Perform a multidata item lookup? (Opt).            */
+               /* If specified, then this criteria is used to        */
+               /* perform addtional multidata item lookups           */
+               /* and filter the results.                            */
+,LINK=         /* Link to additional variable derivations? (Opt).    */
+               /* If specified, it must be a data step link label    */
+               /* defined outside this macro that marks the start    */
+               /* of the additional variable derivations.            */
+,RETURN=N      /* Issue a return statement? (REQ).                   */
+               /* Default value is NO.  Valid values are:            */
+               /* 0 1 OFF N NO F FALSE and ON Y YES T TRUE           */
+               /* OFF N NO F FALSE and ON Y YES T TRUE               */
+               /* (case insensitive) are acceptable aliases for      */
+               /* 0 and 1 respectively.                              */
 );
 
 %local macro parmerr _num_;
@@ -209,7 +234,7 @@ Lookup satellite variables from a hash object
 
 %if (&hashname ne ) %then
 %if (%sysfunc(findw(&_hashname_,&hashname,|,IRST)) eq 0) %then
-%parmv(_msg=%nrstr(The &hashname is not in the &_hashname_ list.  Please review the %hash_define invocations))
+%parmv(_msg=%nrstr(The &hashname is not in the &_hashname_ list.  Please review the %hash_define invocations.))
 
 %parmv(HASHNUM,      _req=0,_words=0,_val=POSITIVE)
 %parmv(HASHNAME,     _req=0,_words=0,_case=N);
@@ -233,9 +258,9 @@ Lookup satellite variables from a hash object
    %* the initial lookup was successful ;
    do while (_rc&hn=0);
       if (&criteria) then do;
-      %if (&link ne ) %then %do;
+         %if (&link ne ) %then %do;
          link &link;
-      %end;
+         %end;
          output;
       end;
       _rc&hn=&hn..find_next();
@@ -246,7 +271,7 @@ Lookup satellite variables from a hash object
 %if (&hashname ne ) %then %do;
    %let hn = &hashname;
    %let rc = _rc;
-   %if (%substr(&hn,1,1) eq _) %then 
+   %if (%substr(&hn,1,1) eq _) %then
       %let rc=&rc.&hn;
    %else
       %let rc=&rc._&hn;
@@ -260,7 +285,7 @@ Lookup satellite variables from a hash object
 %if (&hashnum ne ) %then %do;
    %let hn = %scan(&_hashname_,&hashnum,|);
    %let rc = _rc;
-   %if (%substr(&hn,1,1) eq _) %then 
+   %if (%substr(&hn,1,1) eq _) %then
       %let rc=&rc.&hn;
    %else
       %let rc=&rc._&hn;
@@ -274,7 +299,7 @@ Lookup satellite variables from a hash object
 %do _num_=1 %to &_hashnum_;
    %let hn = %scan(&_hashname_,&_num_,|);
    %let rc = _rc;
-   %if (%substr(&hn,1,1) eq _) %then 
+   %if (%substr(&hn,1,1) eq _) %then
       %let rc=&rc.&hn;
    %else
       %let rc=&rc._&hn;

@@ -1,4 +1,4 @@
-/*====================================================================
+/*=====================================================================
 Program Name            : execpath.sas
 Purpose                 : Returns either the full path or the file name
                           of the currently executing program, in all of
@@ -14,13 +14,38 @@ Originally Written by   : Scott Bass
 Date                    : 09SEP2010
 Program Version #       : 1.0
 
-======================================================================
+=======================================================================
+
+Copyright (c) 2016 Scott Bass
+
+https://github.com/scottbass/SAS/tree/master/Macro
+
+Permission is hereby granted, free of charge, to any person obtaining a
+copy of this software and associated documentation files (the
+"Software"), to deal in the Software without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of the Software, and to
+permit persons to whom the Software is furnished to do so, subject to
+the following conditions:
+
+The above copyright notice and this permission notice shall be included
+in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+=======================================================================
 
 Modification History    : Original version
 
-====================================================================*/
+=====================================================================*/
 
-/*--------------------------------------------------------------------
+/*---------------------------------------------------------------------
 Usage:
 
 In DMS (say from Windows):
@@ -61,22 +86,22 @@ Where test.sas contains %put %execpath;
    Returns the basename of the file, i.e. the filename only, not the
    full path.
 
-----------------------------------------------------------------------
+-----------------------------------------------------------------------
 Notes:
 
 This macro is a function style macro, so must be called as an rvalue
 (right hand side of the equal sign) or in the context of a function
 call.
 
---------------------------------------------------------------------*/
+---------------------------------------------------------------------*/
 
 %macro execpath
-/*--------------------------------------------------------------------
+/*---------------------------------------------------------------------
 Returns the full path or filename of the currently executing program.
---------------------------------------------------------------------*/
-(BASENAME=N    /* Return the filename only? (Opt).                  */
-               /* Default is N.  If Y, then only the filename is    */
-               /* returned.                                         */
+---------------------------------------------------------------------*/
+(BASENAME=N    /* Return the filename only? (Opt).                   */
+               /* Default is N.  If Y, then only the filename is     */
+               /* returned.                                          */
 );
 
 %local macro parmerr;
@@ -135,6 +160,7 @@ Returns the full path or filename of the currently executing program.
 %end;
 
 %quit:
+%* if (&parmerr) %then %abort;
 
 %mend;
 

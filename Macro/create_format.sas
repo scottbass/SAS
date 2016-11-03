@@ -13,17 +13,42 @@ Program Version #       : 1.0
 
 =======================================================================
 
-Modification History    : 
+Copyright (c) 2016 Scott Bass
+
+https://github.com/scottbass/SAS/tree/master/Macro
+
+Permission is hereby granted, free of charge, to any person obtaining a
+copy of this software and associated documentation files (the
+"Software"), to deal in the Software without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of the Software, and to
+permit persons to whom the Software is furnished to do so, subject to
+the following conditions:
+
+The above copyright notice and this permission notice shall be included
+in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+=======================================================================
+
+Modification History    : Original version
 
 Programmer              : Scott Bass
 Date                    : 30NOV2012
-Change/reason           : Changed to use WORKSPDE library for better
+Change/reason           : Changed to use SPDEWORK library for better
                           performance
 Program Version #       : 1.1
 
 =====================================================================*/
 
-/*----------------------------------------------------------------------
+/*---------------------------------------------------------------------
 Usage:
 
 %create_format(
@@ -83,7 +108,7 @@ The name of the format is contained in the variable FMT.
 We want the format names to begin with MY_.
 WORK.FOO should contain the variables START and LABEL.
 
-------------------------------------------------------------------------
+-----------------------------------------------------------------------
 Notes:
 
 If the input dataset contains data for multiple formats
@@ -121,7 +146,7 @@ giving undesired results.
 The macro issues a warning if your input dataset contains overlapping
 ranges.  You should pre-process your input dataset to circumvent this
 warning.
-----------------------------------------------------------------------*/
+---------------------------------------------------------------------*/
 
 %macro create_format
 /*---------------------------------------------------------------------
@@ -241,11 +266,6 @@ data &cntlin;
    ;
    if _n_=1 then call missing(of _all_);
 */
-   set &DATA end=_last_;
-
-   %if (%superq(WHERE) ne %str() ) %then %do;
-      where &WHERE;
-   %end;
 
    %* if the format name or label contains a left parentheses, assume it is a code fragment ;
    %* otherwise it is a hard coded format name or label ;
@@ -267,6 +287,12 @@ data &cntlin;
       %let type = I;
 
    %if (%superq(END) eq ) %then %let END = &START;
+
+   set &DATA (keep=&start &end &label) end=_last_;
+
+   %if (%superq(WHERE) ne %str() ) %then %do;
+      where &WHERE;
+   %end;
 
    FMTNAME  = &NAME;
    TYPE     = "&type";
@@ -294,8 +320,7 @@ data &cntlin;
 
    %if (%superq(OTHER) ne ) %then %do;
       if (_last_) then do;
-         call missing(START);
-         call missing(END);
+         call missing(of START, END, LABEL, &START, &END, &LABEL);
 
          %if (%qupcase(%superq(OTHER)) eq _MISSING_) %then %do;
             %if (%sysfunc(indexc(&TYPE,CNJ))) %then %do;
@@ -347,21 +372,21 @@ data &cntlin;
 run;
 
 %if (&dedup) %then %do;
-   %let cntlin=_crtfmt_._cntlin_nodup_;
+  %let cntlin=_crtfmt_._cntlin_nodup_;
 
-   %* remove duplicate ranges from input dataset ;
-   proc sort data=_crtfmt_._cntlin_ out=&cntlin dupout=_crtfmt_._cntlin_dupout_ nodupkey;
-      by fmtname start;
-   run;
+  %* remove duplicate ranges from input dataset ;
+  proc sort data=_crtfmt_._cntlin_ out=&cntlin dupout=_crtfmt_._cntlin_dupout_ nodupkey;
+     by fmtname start;
+  run;
 
-   %* print message if duplicate observations were deleted ;
-   %if (%nobs(_crtfmt_._cntlin_dupout_) gt 0) %then %do;
-      %* put %str(WAR)NING:  Duplicate ranges were detected in the &DATA dataset.;
-      %put %str(NO)TE:  Duplicate ranges were detected in the &DATA dataset.;
+  %* print message if duplicate observations were deleted ;
+  %if (%nobs(_crtfmt_._cntlin_dupout_) gt 0) %then %do;
+     %* put %str(WAR)NING:  Duplicate ranges were detected in the &DATA dataset.;
+     %put %str(NO)TE:  Duplicate ranges were detected in the &DATA dataset.;
 
-      %* Uncomment the below line if calling this macro from a DIS job ;
-      %*rcSet(4);
-   %end;
+     %* Uncomment the below line if calling this macro from a DIS job ;
+     %*rcSet(4);
+  %end;
 %end;
 
 %* create format(s) ;
@@ -369,6 +394,7 @@ proc format cntlin=&cntlin lib=&LIB..&CAT;
 quit;
 
 %quit:
+%* if (&parmerr) %then %abort;
 
 %mend;
 

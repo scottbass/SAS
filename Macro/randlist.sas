@@ -13,7 +13,32 @@ Program Version #       : 1.0
 
 =======================================================================
 
-Modification History    : 
+Copyright (c) 2016 Scott Bass
+
+https://github.com/scottbass/SAS/tree/master/Macro
+
+Permission is hereby granted, free of charge, to any person obtaining a
+copy of this software and associated documentation files (the
+"Software"), to deal in the Software without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of the Software, and to
+permit persons to whom the Software is furnished to do so, subject to
+the following conditions:
+
+The above copyright notice and this permission notice shall be included
+in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+=======================================================================
+
+Modification History    : Original version
 
 =====================================================================*/
 
@@ -70,7 +95,7 @@ Usage:
 
    only the variables subjid and visit are kept in the output dataset.
 
-------------------------------------------------------------------------
+-----------------------------------------------------------------------
 Notes:
 
 Input dataset must be specified and must exist.
@@ -109,7 +134,7 @@ variable to reset.  The best I can do is unconditionally delete the
 *default* macro variable &randlist on each macro invocation. You can
 use %symdel to delete an old macro variable before re-invoking the
 macro.
-----------------------------------------------------------------------*/
+---------------------------------------------------------------------*/
 
 %macro randlist
 /*---------------------------------------------------------------------
@@ -146,22 +171,21 @@ combination of these parameters.
 %* delete the old default &mvar setting ;
 %unquote(%nrstr(%symdel randlist / nowarn)); /* workaround a SAS bug */
 
+%* basic error checking ;
 %local macro parmerr options;
 %let macro = &sysmacroname;
 
-%* check input parameters ;
-
 %* do not want to upcase the input data parm ;
 %* or it will mess up any input where clause ;
-%parmv(DATA,         _req=1,_words=1,_case=N) /* _words=1 allows input  ds options */
-%parmv(OUT,          _req=0,_words=1,_case=U) /* _words=1 allows output ds options */
-%parmv(OUTRAND,      _req=0,_words=0,_val=0 1)
-%parmv(MVAR,         _req=0,_words=0,_case=U)
-%parmv(VAR,          _req=1,_words=0,_case=U);
-%parmv(PCT,          _req=0,_words=0,_case=U,_val=POSITIVE)
-%parmv(MIN,          _req=0,_words=0,_case=U,_val=POSITIVE)
-%parmv(MAX,          _req=0,_words=0,_case=U,_val=POSITIVE)
-%parmv(SEED,         _req=1,_words=0,_case=U,_val=NONNEGATIVE)
+%parmv(DATA,       _req=1,_words=1,_case=N) /* _words=1 allows input  ds options */
+%parmv(OUT,        _req=0,_words=1,_case=U) /* _words=1 allows output ds options */
+%parmv(OUTRAND,    _req=0,_words=0,_val=0 1)
+%parmv(MVAR,       _req=0,_words=0,_case=U)
+%parmv(VAR,        _req=1,_words=0,_case=U);
+%parmv(PCT,        _req=0,_words=0,_case=U,_val=POSITIVE)
+%parmv(MIN,        _req=0,_words=0,_case=U,_val=POSITIVE)
+%parmv(MAX,        _req=0,_words=0,_case=U,_val=POSITIVE)
+%parmv(SEED,       _req=1,_words=0,_case=U,_val=NONNEGATIVE)
 
 %if (&parmerr) %then %goto quit;
 
@@ -248,7 +272,7 @@ proc sql noprint;
                (select &var
                   from _temp_ (obs=&num)
                )
-         %if (&outrand eq 1) %then %do;
+         %if (&outrand) %then %do;
             order by sort
          %end;
       ;
@@ -263,22 +287,17 @@ proc sql noprint;
       %if (&vartype = C) %then %do;
          select /* distinct */ quote(strip(&var)) into :&mvar separated by ','
             from _temp_ (obs=&num)
+         ;
       %end;
       %else %do;
          select /* distinct */ &var into :&mvar separated by ','
             from _temp_ (obs=&num)
+         ;
       %end;
-
-      %if (&outrand eq 0) %then %do;
-        order by &var
-      %end;
-
-      ;
    %end;
 quit;
 
 %quit:
-
 %mend;
 
 /******* END OF FILE *******/

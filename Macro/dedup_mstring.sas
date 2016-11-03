@@ -1,6 +1,6 @@
-/*====================================================================
+/*=====================================================================
 Program Name            : dedup_mstring.sas
-Purpose                 : Removes duplicate words from a 
+Purpose                 : Removes duplicate words from a
                           macro variable string
 SAS Version             : SAS 9.4
 Input Data              : Macro variable string
@@ -12,13 +12,38 @@ Originally Written by   : Scott Bass
 Date                    : 02FEB2016
 Program Version #       : 1.0
 
-======================================================================
+=======================================================================
 
-Modification History    : 
+Copyright (c) 2016 Scott Bass
 
-====================================================================*/
+https://github.com/scottbass/SAS/tree/master/Macro
 
-/*--------------------------------------------------------------------
+Permission is hereby granted, free of charge, to any person obtaining a
+copy of this software and associated documentation files (the
+"Software"), to deal in the Software without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of the Software, and to
+permit persons to whom the Software is furnished to do so, subject to
+the following conditions:
+
+The above copyright notice and this permission notice shall be included
+in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+=======================================================================
+
+Modification History    : Original version
+
+=====================================================================*/
+
+/*---------------------------------------------------------------------
 Usage:
 
 %let oldstring=C A B B A G E 3 2 1 1 2 3;
@@ -27,7 +52,7 @@ Usage:
 Dedups the input string oldstring, returning "C A B G E 3 2 1".
 The default delimiter for a word is a space.
 
-======================================================================
+=======================================================================
 
 %let oldstring=C  A  B  B  A  G  E  3 2 1 1 2 3;
 %let newstring=%dedup_mstring(&oldstring);
@@ -36,19 +61,19 @@ The default delimiter for a word is a space.
 Same as above, but assigns the result to &newstring.
 Multiple input delimiters are replaced with a single output delimiter.
 
-======================================================================
+=======================================================================
 
 %let oldstring=%str(C, A, B, B, A, G, E, 3, 2, 1, 1, 2, 3);
 
 * these examples do not work ;
 %put %dedup_mstring(&oldstring,indlm=,);
-%put %dedup_mstring(%quote(&oldstring),indlm=,); 
+%put %dedup_mstring(%quote(&oldstring),indlm=,);
 
 * these examples work ;
-%put %dedup_mstring(%quote(&oldstring),indlm=%str(,)); 
-%put %dedup_mstring(%bquote(&oldstring),indlm=%str(,)); 
-%put %dedup_mstring(%nrbquote(&oldstring),indlm=%str(,)); 
-%put %dedup_mstring(%superq(oldstring),indlm=%str(,)); 
+%put %dedup_mstring(%quote(&oldstring),indlm=%str(,));
+%put %dedup_mstring(%bquote(&oldstring),indlm=%str(,));
+%put %dedup_mstring(%nrbquote(&oldstring),indlm=%str(,));
+%put %dedup_mstring(%superq(oldstring),indlm=%str(,));
 
 * this is what you need to output a space as the output delimiter ;
 %put %dedup_mstring(%superq(oldstring),indlm=%str(,),dlm=);            * uses the input delimiter ;
@@ -61,22 +86,22 @@ Commas are common in macro variable strings, but are problematic
 for the macro tokenizer.  Macro quoting functions must be used on the
 macro invocation to get the desired results.
 
-======================================================================
+=======================================================================
 
 %let oldstring=C^A^B^B^A#G#E#3|2|1*1*2*3;
 
 * output delimter is a space ;
-%put %dedup_mstring(&oldstring,indlm=^#|*);  
+%put %dedup_mstring(&oldstring,indlm=^#|*);
 
 * output delimter is a comma ;
-%let newstring=%dedup_mstring(&oldstring,indlm=^#|*,dlm=%str(,));  
+%let newstring=%dedup_mstring(&oldstring,indlm=^#|*,dlm=%str(,));
 %put &=newstring;
 
-Multiple delimiters may be specified for the input string to delimit 
-words, but only one delimiter can be specified for the output string. 
+Multiple delimiters may be specified for the input string to delimit
+words, but only one delimiter can be specified for the output string.
 (This is a rare use case.)
 
-======================================================================
+=======================================================================
 
 %let oldstring='PERSON', "ORGANISATION",AND,OR,NOT, 'PERSON', 'ORGANISATION';
 %let newstring=%dedup_mstring(%quote(&oldstring),indlm=%str(,));
@@ -90,14 +115,14 @@ and the same type (single or double quotes).
 For the purposes of this macro, all characters other than the delimiter
 are significant and used to determine whether a duplicate occurs
 
-----------------------------------------------------------------------
+-----------------------------------------------------------------------
 Notes:
 
 This macro returns an r-value, so the results are usually assigned to
-another macro variable or else used inline.  The returned r-value is 
+another macro variable or else used inline.  The returned r-value is
 macro unquoted.
 
-This macro is a "pure macro" implementation and runs to completion 
+This macro is a "pure macro" implementation and runs to completion
 during program compilation.
 
 An input delimiter is required to indicate what determines a "word".
@@ -105,28 +130,28 @@ An input delimiter is required to indicate what determines a "word".
 The default input and output delimter is a space.
 
 If the output delimiter is not specified:
-   If the length of the input delimiter = 1, the input delimiter 
+   If the length of the input delimiter = 1, the input delimiter
       will be used for the output string.
-   If the length of the input delimiter > 1, a space 
+   If the length of the input delimiter > 1, a space
       will be used for the output string.
-   
+
 If the output delimiter is specified, it will always be used.
 
---------------------------------------------------------------------*/
+---------------------------------------------------------------------*/
 
 %macro dedup_mstring
-/*--------------------------------------------------------------------
+/*---------------------------------------------------------------------
 Removes duplicate words from a macro variable string
---------------------------------------------------------------------*/
-(IN            /* Input string (REQ).                               */
-,INDLM=        /* Input delimiter marking each token (word) in the  */
-               /* input string (Opt).                               */
-               /* If not specified, a space will be used.           */
-,DLM=          /* Output delimiter marking each token (word) in the */
-               /* output string (Opt).                              */
-               /* If not specified:                                 */
-               /*    If the length of INDLM = 1, set to INDLM       */
-               /*    If the length of INDLM > 1, set to space       */
+---------------------------------------------------------------------*/
+(IN            /* Input string (REQ).                                */
+,INDLM=        /* Input delimiter marking each token (word) in the   */
+               /* input string (Opt).                                */
+               /* If not specified, a space will be used.            */
+,DLM=          /* Output delimiter marking each token (word) in the  */
+               /* output string (Opt).                               */
+               /* If not specified:                                  */
+               /*    If the length of INDLM = 1, set to INDLM        */
+               /*    If the length of INDLM > 1, set to space        */
 );
 
 %local macro parmerr i out;
@@ -151,7 +176,7 @@ Removes duplicate words from a macro variable string
    %if (%length(%superq(indlm)) gt 1) %then
       %let dlm = %str( );
 %end;
-   
+
 %* loop over each token, searching the target for that token ;
 %let num=%sysfunc(countc(%superq(in),%str(&indlm)));
 %let num=%eval(&num+1);

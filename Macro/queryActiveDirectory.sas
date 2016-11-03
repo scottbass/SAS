@@ -13,7 +13,32 @@ Program Version #       : 1.0
 
 =======================================================================
 
-Modification History    : 
+Copyright (c) 2016 Scott Bass
+
+https://github.com/scottbass/SAS/tree/master/Macro
+
+Permission is hereby granted, free of charge, to any person obtaining a
+copy of this software and associated documentation files (the
+"Software"), to deal in the Software without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of the Software, and to
+permit persons to whom the Software is furnished to do so, subject to
+the following conditions:
+
+The above copyright notice and this permission notice shall be included
+in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+=======================================================================
+
+Modification History    :
 
 Programmer              : Scott Bass
 Date                    : 30JUN2013
@@ -22,6 +47,12 @@ Change/reason           : Changed the base DN to the default base DN
                           This change is due to changes by IT to the
                           OU structure for user objects.
 Program Version #       : 1.1
+
+Programmer              : Scott Bass
+Date                    : 06JUL2016
+Change/reason           : Changed the base DN to the default base DN
+                          configured in Active Directory for <new client>
+Program Version #       : 1.2
 
 =====================================================================*/
 
@@ -51,7 +82,7 @@ run;
 
 * return all user information for a particular user ;
 %queryActiveDirectory(
-   filter=(&(samaccountname=jdoe)(objectclass=user))
+   filter=(&(samaccountname=johndoe)(objectclass=user))
    ,debug=I
 );
 
@@ -64,7 +95,7 @@ run;
 
 * return full name, first name, last name, and email address for a particular user ;
 %queryActiveDirectory(
-   filter=(samaccountname=jdoe)
+   filter=(samaccountname=johndoe)
    ,attrs=cn givenName sn mail
    ,debug=F
 );
@@ -77,7 +108,7 @@ run;
 * return full name of all users in the Sydney branch of the Active Directory tree ;
 * whose first names begin with "S" ;
 %queryActiveDirectory(
-   base=%str(OU=Sydney,DC=acme,DC=com,DC=au)
+   base=%str(OU=Sydney,OU=Users,DC=internal,DC=acme,DC=com,DC=au)
    ,filter=(givenName=S*)
    ,attrs=cn
 );
@@ -92,7 +123,7 @@ run;
 * whose first or last names contain "will" ;
 * (queries are case-insensitive by default) ;
 %queryActiveDirectory(
-   base=%str(OU=Melbourne,DC=acme,DC=com,DC=au)
+   base=%str(OU=Melbourne,OU=Users,DC=internal,DC=acme,DC=com,DC=au)
    ,filter=(|(givenName=*will*)(sn=*will*))
    ,attrs=cn
 );
@@ -128,8 +159,8 @@ run;
 * example of post processing the data in SAS ;
 * return all users with John Doe as their manager ;
 %queryActiveDirectory(
-   base=%str(OU=Sydney,DC=acme,DC=com,DC=au)
-   ,filter=(manager=CN=John Doe,OU=Sydney,DC=acme,DC=com,DC=au)
+   base=%str(OU=Sydney,OU=Users,DC=internal,DC=acme,DC=com,DC=au)
+   ,filter=(manager=CN=John Doe,OU=Sydney,OU=Users,DC=internal,DC=acme,DC=com,DC=au)
    ,attrs=givenName sn streetAddress l st postalCode mail telephoneNumber mobile title
 );
 
@@ -158,8 +189,8 @@ run;
 * if you know the attribute is a multi-valued attribute, ;
 * you would probably want to return the data as a delimited list ;
 %queryActiveDirectory(
-   base=%str(OU=Sydney,DC=acme,DC=com,DC=au)
-   ,filter=(cn=Scott Bass)
+   base=%str(OU=Sydney,OU=Users,DC=internal,DC=acme,DC=com,DC=au)
+   ,filter=(cn=John Doe)
 );
 proc sql noprint;
    select
@@ -196,9 +227,6 @@ to view the structure of Active Directory.  For a primer on this
 command and LDAP query syntax, see
 http://technet.microsoft.com/en-us/library/aa996205(v=exchg.65).aspx#DoingASearchUsingADUC
 
-Alternatively, you can use the free Sysinternals tool Active Directory Explorer:
-https://technet.microsoft.com/en-us/sysinternals/adexplorer.aspx
-
 Certain LDAP searches will execute quicker than others, for example
 searching on sAMAccountName (network login) vs. mail (email address).
 For best results, set the Base DN as low in the directory tree as
@@ -208,14 +236,15 @@ friend here.
 
 IT has created a service account with a non-expiring password for
 programmatic querying of Active Directory.  The details of the service
-account are below.  The password must be sent in the clear (not
-encoded in any way).
+account are below.  The password must be sent in the clear (not encoded
+in any way).
 
 The most common query would be for user information, which has an
-objectclass hierarchy of objectclass=organizationalPerson at the lowest level.
+objectclass hierarchy of objectclass=organizationalPerson at the lowest
+level.
 
-The default parameters of this macro are purposely restrictive in
-order to return the attributes of the currently logged on user.
+The default parameters of this macro are purposely restrictive in order
+to return the attributes of the currently logged on user.
 
 I envision that this generic macro would be the "engine" for a wrapper
 macro, such as returning the email address for a given user.
@@ -229,33 +258,33 @@ http://support.sas.com/rnd/itech/doc9/dev_guide/ldap/ldapintf/ldap_search.html.
 /*---------------------------------------------------------------------
 Execute an LDAP query against Active Directory
 ---------------------------------------------------------------------*/
-(SERVER=your.active.directory.server
+(SERVER=SERVER.domain.local
                /* Server address of Active Directory (REQ).          */
 ,PORT=389
                /* Server port of Active Directory (REQ).             */
-,BASE=%str(DC=acme,DC=com,DC=au)
+,BASE=%str(DC=domain,DC=local)
                /* Base DN (Distinguished Name) from which to start   */
                /* the LDAP search (REQ).                             */
                /* The default Base DN used by Active Directory is    */
-               /* DC=acme,DC=com,DC=au                               */
+               /* DC=domain,DC=local                                 */
                /* which is analogous to the root directory in a      */
                /* file system or Windows drive.                      */
-,BINDDN=%str(CN=svc_AD_query_user,OU=SAS,OU=ServiceAccounts,DC=acme,DC=com,DC=au)
+,BINDDN=%str(CN=&LDAPName,OU=Staff,DC=domain,DC=local)
                /* Bind DN used to connect to Active Directory (REQ). */
                /* Our Active Directory is not configured for         */
                /* anonymous binds, so a valid Bind DN and password   */
                /* is required.  You will not usually need to change  */
                /* this value.  However, if you want to connect as    */
                /* yourself, it would be something like:              */
-               /* CN=John Doe, DC=acme, DC=com, DC=au                */
+               /* CN=John Doe,OU=Staff,DC=domain,DC=local,...        */
                /* and your current LAN password (clear text).        */
-,PW=password
+,PW=&LDAPPassword
                /* Bind DN password (REQ).  As above, you will not    */
                /* usually need to change this value.                 */
 ,FILTER=(&(samaccountname=&sysuserid)(objectclass=organizationalPerson))
                /* LDAP query filter (REQ).                           */
                /* This will retrieve the user object of the current  */
-               /* user for LAN accounts ONLY (i.e. not machine accts)*/
+               /* user for LAN accounts ONLY (i.e. not PRODUSR)      */
 ,ATTRS=
                /* Requested LDAP attributes to return (Opt).         */
                /* A blank value will return all attributes for the   */
@@ -458,7 +487,6 @@ data work.ldap / view=work.ldap;
 run;
 
 %quit:
-
 %mend;
 
 /******* END OF FILE *******/

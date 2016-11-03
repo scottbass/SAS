@@ -1,4 +1,4 @@
-/*====================================================================
+/*=====================================================================
 Program Name            : hash_define.sas
 Purpose                 : Defines a hash object for later lookup.
 SAS Version             : SAS 9.1.3
@@ -11,9 +11,34 @@ Originally Written by   : Scott Bass
 Date                    : 12MAY2010
 Program Version #       : 1.0
 
-======================================================================
+=======================================================================
 
-Modification History    : 
+Copyright (c) 2016 Scott Bass
+
+https://github.com/scottbass/SAS/tree/master/Macro
+
+Permission is hereby granted, free of charge, to any person obtaining a
+copy of this software and associated documentation files (the
+"Software"), to deal in the Software without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of the Software, and to
+permit persons to whom the Software is furnished to do so, subject to
+the following conditions:
+
+The above copyright notice and this permission notice shall be included
+in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+=======================================================================
+
+Modification History    : Original version
 
 Programmer              : Scott Bass
 Date                    : 22JUL2011
@@ -34,12 +59,12 @@ Program Version #       : 1.3
 
 Programmer              : Scott Bass
 Date                    : 30MAY2016
-Change/reason           : Added replace option.
+Change/reason           : Added duplicate option.
 Program Version #       : 1.4
 
-====================================================================*/
+=====================================================================*/
 
-/*--------------------------------------------------------------------
+/*---------------------------------------------------------------------
 Usage:
 
 data source;
@@ -89,7 +114,7 @@ run;
 proc print;
 run;
 
-======================================================================
+=======================================================================
 
 * "Standard" lookup with renames ;
 data joined;
@@ -105,7 +130,7 @@ run;
 proc print;
 run;
 
-======================================================================
+=======================================================================
 
 * Multidata lookup - better source/lookup example datasets ;
 data lookup;
@@ -153,7 +178,7 @@ run;
 proc print;
 run;
 
-======================================================================
+=======================================================================
 
 * Multidata lookup with multiple %hash_lookup macro calls ;
 * (for code generation illustration only - normally different lookup datasets would be used) ;
@@ -184,7 +209,7 @@ run;
 proc print;
 run;
 
-======================================================================
+=======================================================================
 
 * Hash names used instead of hash numbers ;
 data joined;
@@ -223,14 +248,14 @@ data joined;
 *  drop _rc_:;  * optional ;
 run;
 
-----------------------------------------------------------------------
+-----------------------------------------------------------------------
 Notes:
 
 Set &_hashnum_ = 0 before calling this macro for the first time.
 &_hashnum_ is incremented each time this macro is called.
 
 (Technically you do not have to set _hashnum_ in the calling program,
- but it will get created on the first %hash_define invocation, 
+ but it will get created on the first %hash_define invocation,
  and incremented each time %hash_define is called.
  This would be a problem in a development environment like EG or DMS,
  but would not be an issue in batch processing.
@@ -254,17 +279,17 @@ If the HASHNAME parameter is specified, that name is used for the
 hash object, and for the return code set by %hash_lookup.
 
 The default return code variable is _rc_h1, _rc_h2,..., _rc_n<n>.
-If the HASHNAME parameter was specified in %hash_define, the 
+If the HASHNAME parameter was specified in %hash_define, the
 return code variable is named _rc_<hashname>.  If the hashname
 contains a leading underscore, it is removed from the return
 code variable.
 
-For example, if the HASHNAME parameter = _myhash, 
-the generated code will be 
-_rc_myhash = _myhash.find(), instead of 
-_rc__myhash = _myhash.find(). 
+For example, if the HASHNAME parameter = _myhash,
+the generated code will be
+_rc_myhash = _myhash.find(), instead of
+_rc__myhash = _myhash.find().
 
-The return code indicates whether the lookup was successful, 
+The return code indicates whether the lookup was successful,
 and is similar to IN= dataset option on a merge.
 
 If the VARS parameter is not specified, then no additional variables
@@ -287,15 +312,14 @@ If the RENAME parameter is specified, the KEYS and VARS parameters must
 be specified from the perspective of the virtual names, i.e. the
 renamed variables.
 
-If REPLACE=<blank> (default value), the first key in the load dataset 
-is added to the hash object, and all other keys are ignored.  
+By default, the first key in the load dataset is added to the hash
+object, and all other keys are ignored.
 If REPLACE=R, then the last key in the load dataset is added to the hash object.
 If REPLACE=E, then duplicate keys in the load dataset will generate an error.
 
 If MULTIDATA=Y, then multiple values of the keys are permitted in the
-lookup hash object.  Otherwise, the addition of duplicate key values
-to the hash object will follow the processing noted by the 
-REPLACE= parameter above.
+lookup hash object.  Otherwise, only the first occurence of each key
+value will be added to the lookup hash object.
 
 If MULTIDATA=Y, you would usually pair this with a LOOKUP=<subsetting
 criteria> %hash_lookup macro call.  See usage example above for details.
@@ -305,52 +329,52 @@ additional observations from the lookup dataset. The resulting number
 of observations will match the number of observations in the source
 dataset.
 
---------------------------------------------------------------------*/
+---------------------------------------------------------------------*/
 
 %macro hash_define
-/*--------------------------------------------------------------------
+/*---------------------------------------------------------------------
 Defines a hash object for later lookup
---------------------------------------------------------------------*/
-(DATA=         /* Lookup dataset (Opt).                             */
-               /* If specified, the lookup dataset loads the hash   */
-               /* object.  If not specified, an empty hash object   */
-               /* is created.                                       */
-,KEYS=         /* Lookup keys (REQ).                                */
-,VARS=         /* Lookup satellite variables (Opt).                 */
-               /* Default is no additional variables from the lookup*/
-               /* dataset.  Specify _ALL_ to return all variables   */
-               /* from the lookup dataset.                          */
-,RENAME=       /* Rename lookup keys or satellite variables (Opt).  */
-               /* If specified, then specify as oldname1=newname1   */
-               /* oldname2=newname2 etc.                            */
-,WHERE=        /* Where clause to apply to the lookup dataset(Opt). */
-,KEEP=         /* Additional keep variables (Opt).                  */
-               /* KEYS= and VARS= variables are automatically kept, */
-               /* specify KEEP= if you have variables needed for a  */
-               /* WHERE= clause that are neither key nor satellite  */
-               /* variables.                                        */
-,ORDERED=N     /* Store lookup table in sorted order? (REQ).        */
-               /* Valid values are N=none, A=ascending, D=descending*/
-               /* (case insensitive).                               */
-               /* Default=none.                                     */
-,MULTIDATA=N   /* Multiple key values allowed in the lookup hash    */
-               /* object? (REQ).                                    */
-               /* Default value is NO.  Valid values are:           */
-               /* 0 1 OFF N NO F FALSE and ON Y YES T TRUE          */
-               /* OFF N NO F FALSE and ON Y YES T TRUE              */
-               /* (case insensitive) are acceptable aliases for     */
-               /* 0 and 1 respectively.                             */
-,REPLACE=      /* Replace keys that have already been loaded into   */
-               /* the hash object? (Opt).                           */
-               /* Default value is <blank>, the first key is loaded */
-               /* and all other keys are ignored.                   */
-               /* If REPLACE=R | REPLACE, duplicate keys overwrite  */
-               /* previous keys, i.e. the last key is loaded.       */
-               /* If REPLACE=E | ERROR, duplicate keys will         */
-               /* generate an error.                                */               
-,HASHNAME=     /* Explicit hash object name (Opt.)                  */
-               /* If not specified, the default name                */
-               /* _h<hashnum> is used.                              */
+---------------------------------------------------------------------*/
+(DATA=         /* Lookup dataset (Opt).                              */
+               /* If specified, the lookup dataset loads the hash    */
+               /* object.  If not specified, an empty hash object    */
+               /* is created.                                        */
+,KEYS=         /* Lookup keys (REQ).                                 */
+,VARS=         /* Lookup satellite variables (Opt).                  */
+               /* Default is no additional variables from the lookup */
+               /* dataset.  Specify _ALL_ to return all variables    */
+               /* from the lookup dataset.                           */
+,RENAME=       /* Rename lookup keys or satellite variables (Opt).   */
+               /* If specified, then specify as oldname1=newname1    */
+               /* oldname2=newname2 etc.                             */
+,WHERE=        /* Where clause to apply to the lookup dataset(Opt).  */
+,KEEP=         /* Additional keep variables (Opt).                   */
+               /* KEYS= and VARS= variables are automatically kept,  */
+               /* specify KEEP= if you have variables needed for a   */
+               /* WHERE= clause that are neither key nor satellite   */
+               /* variables.                                         */
+,ORDERED=N     /* Store lookup table in sorted order? (REQ).         */
+               /* Valid values are N=none, A=ascending, D=descending */
+               /* (case insensitive).                                */
+               /* Default=none.                                      */
+,MULTIDATA=N   /* Multiple key values allowed in the lookup hash     */
+               /* object? (REQ).                                     */
+               /* Default value is NO.  Valid values are:            */
+               /* 0 1 OFF N NO F FALSE and ON Y YES T TRUE           */
+               /* OFF N NO F FALSE and ON Y YES T TRUE               */
+               /* (case insensitive) are acceptable aliases for      */
+               /* 0 and 1 respectively.                              */
+,REPLACE=      /* Replace keys that have already been loaded into    */
+               /* the hash object? (Opt).                            */
+               /* Default value is <blank>, the first key is loaded  */
+               /* and all other keys are ignored.                    */
+               /* If REPLACE=R | REPLACE, duplicate keys overwrite   */
+               /* previous keys, i.e. the last key is loaded.        */
+               /* If REPLACE=E | ERROR, duplicate keys will          */
+               /* generate an error.                                 */
+,HASHNAME=     /* Explicit hash object name (Opt.)                   */
+               /* If not specified, the default name                 */
+               /* _h<hashnum> is used.                               */
 );
 
 %local macro parmerr keep rx hn;
@@ -408,11 +432,11 @@ Defines a hash object for later lookup
 
 %* if an explicit hash name was specified use it, ;
 %* otherwise set the default hash name of _h<hashnum> ;
-%if (&hashname eq ) %then 
+%if (&hashname eq ) %then
    %let hn=_h&_hashnum_;
 %else
    %let hn=&hashname;
-   
+
 %* append the hashname to &_hashname_ with a pipe (|) delimiter ;
 %if (&_hashnum_ gt 1) %then %let _hashname_ = &_hashname_ |;
 %let _hashname_ = &_hashname_ &hn;
@@ -442,19 +466,19 @@ if (_n_ = 1) then do;
    %* declare the hash object ;
    declare hash &hn (
       %if (&data ne ) %then %do;
-         dataset: "&data &options" ,
+      dataset: "&data &options" ,
       %end;
-      hashexp: 16 ,
-      ordered: "&ordered"
+      hashexp: 16
+      , ordered: "&ordered"
       %if (&replace eq R or &replace eq REPLACE) %then %do;
-         , duplicate: "R"
+      , duplicate: "R"
       %end;
       %else
       %if (&replace eq E or &replace eq ERROR) %then %do;
-         , duplicate: "E"
+      , duplicate: "E"
       %end;
       %if (&multidata) %then %do;
-         , multidata: "Y"
+      , multidata: "Y"
       %end;
    );
 

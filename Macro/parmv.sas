@@ -15,6 +15,31 @@ Program Version #       : 1.0
 
 =======================================================================
 
+Copyright (c) 2016 Scott Bass
+
+https://github.com/scottbass/SAS/tree/master/Macro
+
+Permission is hereby granted, free of charge, to any person obtaining a
+copy of this software and associated documentation files (the
+"Software"), to deal in the Software without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of the Software, and to
+permit persons to whom the Software is furnished to do so, subject to
+the following conditions:
+
+The above copyright notice and this permission notice shall be included
+in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+=======================================================================
+
 Modification History    :
 
 Programmer              : Tom Hoffman
@@ -79,9 +104,9 @@ Notes:
 
 =======================================================================
 This code was developed by HOFFMAN CONSULTING as part of a FREEWARE
-macro tool set. Permission is granted for its use at other sites,
-provided this attribution remains in the code.  Questions and suggestions
-may be sent to <email address deleted to respect Tom Hoffman's privacy>.
+macro tool set. Its use is restricted to current and former clients of
+HOFFMAN CONSULTING as well as other professional colleagues. Questions
+and suggestions may be sent to TRHoffman@sprynet.com.
 
 Note:  I have received permission from Tom Hoffman to use this macro.
 Scott Bass
@@ -112,7 +137,7 @@ not be defined by the programming environment, consider using the
 CHKMVARS macro rather than setting _varchk=1. Both methods will work,
 but note that DICTIONARY.MACROS is opened each time that parmv is
 invoked with _varchk=1.
---------------------------------------------------------------------*/
+---------------------------------------------------------------------*/
 
 %macro parmv
 /*---------------------------------------------------------------------

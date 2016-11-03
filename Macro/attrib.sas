@@ -14,7 +14,32 @@ Program Version #       : 1.0
 
 =======================================================================
 
-Modification History    :
+Copyright (c) 2016 Scott Bass
+
+https://github.com/scottbass/SAS/tree/master/Macro
+
+Permission is hereby granted, free of charge, to any person obtaining a
+copy of this software and associated documentation files (the
+"Software"), to deal in the Software without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of the Software, and to
+permit persons to whom the Software is furnished to do so, subject to
+the following conditions:
+
+The above copyright notice and this permission notice shall be included
+in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+=======================================================================
+
+Modification History    : Original version
 
 =====================================================================*/
 
@@ -23,13 +48,13 @@ Usage:
 
 data _null_;
    %attrib(sashelp.class)
-   
+
    %attrib(sashelp.cars,keep=make model enginesize horsepower doesnotexist)
-   
+
    %attrib(sashelp.shoes,drop=product stores returns doesnotexist)
 run;
 
-Displays attrib statements for sashelp.class, sashelp.cars, and 
+Displays attrib statements for sashelp.class, sashelp.cars, and
 sashelp.shoes, honoring the keep and drop parameters.
 
 Note that a non-existant variable is silently ignored on a drop or
@@ -49,9 +74,9 @@ run;
 
 data template / view=template;
    set sashelp.shoes;
-   attrib 
-      longvar 
-      length=$32767 
+   attrib
+      longvar
+      length=$32767
       format=$ffffffffffgggggggggghhhhhhhhhhx9.
       informat=$iiiiiiiiiijjjjjjjjjjkkkkkkkkkk9.
       label="This is the label"
@@ -100,16 +125,16 @@ run;
 
 However, there are (at least) two issues:
 
-1) There is an implicit retain of all data set variables.  If the 
+1) There is an implicit retain of all data set variables.  If the
 template dataset is defining the attributes of a derived variable,
 this can be problematic and sometimes results in hard-to-track down
 bugs.
 
 2) In PROC DS2, the data source can be either a data set or a FedSQL
-query.  Often the template data set requires the (locktable=share) 
+query.  Often the template data set requires the (locktable=share)
 data set option or other problems can occur.
 
-The different syntax of PROC DS2 can make the use of a template 
+The different syntax of PROC DS2 can make the use of a template
 dataset problematic.
 
 This macro can also be handy if you just want to quickly display
@@ -124,8 +149,8 @@ It's also possible to cut-and-paste these lines to another program
 to easily duplicate the structure of the template dataset.
 
 I have chosen to design this macro so that the SHOW functionality
-inserts whitespace in order to line up the 
-length/format/informat/label data.  
+inserts whitespace in order to line up the
+length/format/informat/label data.
 
 I believe this makes the data easier to skim in the log, but it may not
 be your preferred approach, say when cut-and-pasting this into another
@@ -234,7 +259,7 @@ Generate attrib statements from a template dataset.
    %* remove ~ from name for varlist processing ;
    %let name=%sysfunc(translate(&name,%str( ),%str(~)));
    %let name=%left(&name);
-   
+
    %if (&keep ne ) %then %do;
       %if (%index(&keep,%upcase(&name))) %then %do;
          %if (&show) %then %do;

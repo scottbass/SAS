@@ -15,6 +15,31 @@ Program Version #       : 1.0
 
 =======================================================================
 
+Copyright (c) 2016 Scott Bass
+
+https://github.com/scottbass/SAS/tree/master/Macro
+
+Permission is hereby granted, free of charge, to any person obtaining a
+copy of this software and associated documentation files (the
+"Software"), to deal in the Software without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of the Software, and to
+permit persons to whom the Software is furnished to do so, subject to
+the following conditions:
+
+The above copyright notice and this permission notice shall be included
+in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+=======================================================================
+
 Modification History    :
 
 Programmer              : Scott Bass
@@ -109,7 +134,7 @@ http://support.sas.com/documentation/cdl/en/lefunctionsref/64814/HTML/default/vi
 Specify multiple format names and/or wildcards as a space separated list.
 The PRX "or" operator (|) will be added by the macro.
 
-Specify the CATALOG= parameter to limit the search to a single catalog in
+Specify the CAT= parameter to limit the search to a single catalog in
 the fmtsearch path.  Otherwise, all format catalogs are searched.
 
 Specify the TYPE= parameter to limit the search to one or more format
@@ -120,7 +145,7 @@ types:
    CI=Character Informat    (Accepts character input, returns character output)
    NI=Numeric Informat      (Accepts character input, returns numeric output)
 
-----------------------------------------------------------------------*/
+---------------------------------------------------------------------*/
 
 %macro fmtlist
 /*---------------------------------------------------------------------
@@ -185,18 +210,18 @@ Prints contents of one or more format or informat entries
 %if (not %sysfunc(exist(work.usrfmts,view))) %then %do;
 proc sql;
    create view work.usrfmts as
-   select
-      libname,
-      memname,
-      objname,
-      fmtname,
-      cats(ifc(substr(fmtname,1,1)="$","C","N"),fmttype) as fmttype length=2
-   from
-      dictionary.formats
-   where
-      libname is not missing
-   order by
-      libname, memname
+      select
+         libname,
+         memname,
+         objname,
+         fmtname,
+         cats(ifc(substr(fmtname,1,1)="$","C","N"),fmttype) as fmttype length=2
+      from
+         dictionary.formats
+      where
+         libname is not missing
+      order by
+         libname, memname
    ;
 quit;
 %end;
@@ -208,10 +233,10 @@ quit;
          *
       from
          work.usrfmts
-   %if (&flag) %then %do;
+      %if (&flag) %then %do;
       where
          &where
-   %end;
+      %end;
       order by
          objname
       ;
@@ -231,10 +256,10 @@ quit;
          catx(".",libname,memname) into :fmtcats separated by " "
       from
          work.usrfmts
-   %if (&flag) %then %do;
+      %if (&flag) %then %do;
       where
          &where
-   %end;
+      %end;
       ;
    quit;
    %if (&sqlobs eq 0) %then %do;
@@ -253,10 +278,10 @@ quit;
                work.usrfmts
             where
                catx(".",libname,memname)="&word"
-         %if (&flag) %then %do;
+            %if (&flag) %then %do;
                and
                &where
-         %end;
+            %end;
             order by
                objname
             ;
@@ -280,7 +305,6 @@ quit;
 %end;
 
 %quit:
-
 %mend;
 
 /******* END OF FILE *******/

@@ -13,7 +13,32 @@ Program Version #       : 1.0
 
 =======================================================================
 
-Modification History    : 
+Copyright (c) 2016 Scott Bass
+
+https://github.com/scottbass/SAS/tree/master/Macro
+
+Permission is hereby granted, free of charge, to any person obtaining a
+copy of this software and associated documentation files (the
+"Software"), to deal in the Software without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of the Software, and to
+permit persons to whom the Software is furnished to do so, subject to
+the following conditions:
+
+The above copyright notice and this permission notice shall be included
+in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+=======================================================================
+
+Modification History    : Original version
 
 =====================================================================*/
 
@@ -144,7 +169,7 @@ Submit a SAS batch program from a Stored Process
                /* to the batch job.  This parameter should be        */
                /* specified as a where clause appropriate for the    */
                /* SQL dictionary table dictionary.macros.            */
-,SAS=E:\SAS\Config\%sysget(lev)\SASApp\BatchServer\sasbatch.bat
+,SAS=/opt/sas/Config/Lev1/SASApp/BatchServer/sasbatch.sh
                /* Absolute path to SAS executable (REQ).             */
 ,CONFIG=       /* Absolute path to SAS config file (Opt).            */
 ,PGM=          /* Absolute path to SAS program file (Opt).           */
@@ -202,8 +227,8 @@ If the message dataset does not exist, create a default message dataset.
 If a messagefile was specified, create a message dataset from that file.
 Bummer you cannot use cards/datalines in a macro.
 */
-%if (not %sysfunc(exist(&message)) or (&messagefile ne )) %then %do;
-   %if (&messagefile eq ) %then %do;
+%if (not %sysfunc(exist(&message)) or (%superq(messagefile) ne )) %then %do;
+   %if (%superq(messagefile) eq ) %then %do;
       data &message;
          length message $200 buffer $32767;
          keep message;
@@ -218,7 +243,7 @@ Bummer you cannot use cards/datalines in a macro.
 | <body>
 | </body>
 | </html>
-         ';
+';
          i=1;
          do while (scan(buffer,i,"|") ne "");
             message=left(scan(buffer,i,"|"));
@@ -244,13 +269,13 @@ This dataset will be used by the batch job to recreate the macro variables.
 %if (%sysfunc(exist(save.parameters))) %then %lock(member=save.parameters,action=lock);
 proc sql noprint;
    create table save.parameters as
-   select
-      name
-      ,value
-   from
-      dictionary.macros
-   where
-      &mvars
+      select
+         name
+         ,value
+      from
+         dictionary.macros
+      where
+         &mvars
    ;
 quit;
 %lock(member=save.parameters,action=clear)
@@ -277,13 +302,23 @@ NOTE:  Do NOT change the single/double quoting below, or you will likely break t
 
 %let parms=&parms -sysparm '&batch_save_library';
 
-%* We need to specify the produser credentials for the spawned SAS job ;
-%let parms=&parms -metauser produsr -metapass {SAS002}1234567890ABCDEF1234567890ABCDEF;
+/*
+%* We need to specify a service user credentials for the spawned SAS job ;
+*/
+%let parms=&parms -metauser serviceuser -metapass {sas002}1234567890ABCDEF1234567890ABCDEF;
 
 /*
 Invoke the SAS batch job.
 */
-systask command " ""&sas"" &parms " nowait;
+%let options=%sysfunc(getoption(quotelenmax));
+options noquotelenmax;
+%if (&sysscp eq WIN) %then %do;
+   systask command " ""&sas"" &parms " nowait;
+%end;
+%else %do;
+   systask command "&sas &parms" nowait;
+%end;
+options &options;
 
 /*
 Resolve any embedded macro variables in the message dataset.
@@ -292,6 +327,9 @@ for unresolved macro and unresolved macro variable references.
 HTML code in particular can have tokens (eg. &_program=...) that look like macro variables
 but are HTML tokens instead.
 */
+
+%if (%sysfunc(fileref(_webout)) le 0) %then %do;
+
 %let options=%sysfunc(getoption(merror,keyword)) %sysfunc(getoption(serror,keyword));
 options nomerror noserror;
 data work._message_ (compress=char);
@@ -314,8 +352,9 @@ data _null_;
    put ________;
 run;
 
-%quit:
+%end;
 
+%quit:
 %mend;
 
 /******* END OF FILE *******/

@@ -14,7 +14,32 @@ Program Version #       : 1.0
 
 =======================================================================
 
-Modification History    :
+Copyright (c) 2016 Scott Bass
+
+https://github.com/scottbass/SAS/tree/master/Macro
+
+Permission is hereby granted, free of charge, to any person obtaining a
+copy of this software and associated documentation files (the
+"Software"), to deal in the Software without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of the Software, and to
+permit persons to whom the Software is furnished to do so, subject to
+the following conditions:
+
+The above copyright notice and this permission notice shall be included
+in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+=======================================================================
+
+Modification History    : Original version
 
 =====================================================================*/
 
@@ -72,16 +97,16 @@ options symbolgen;
 * these do not work ;
 %let mvar=%str(P.J. O'Briens);
 %let newmvar = %squote(%bquote(&mvar));
-%put &=newmvar;  
+%put &=newmvar;
 
 %let mvar=%str(P.J. O'Briens);
 %let newmvar = %squote(%superq(mvar));
-%put &=newmvar;  
+%put &=newmvar;
 
 * but this does ;
 %let mvar=%bquote(P.J. O'Briens);
 %let newmvar = %squote(&mvar);
-%put &=newmvar;  
+%put &=newmvar;
 
 -----------------------------------------------------------------------
 Notes:
@@ -92,7 +117,7 @@ https://communities.sas.com/t5/SAS-Communities-Library/Not-All-Macro-Language-El
 I just wanted to add this useful macro to my macro toolkit.
 
 Compare the functionality of this macro to SAS's %tslit macro.
-Besides the hideous hard-to-remember name of SAS's macro, 
+Besides the hideous hard-to-remember name of SAS's macro,
 this macro is "cleaner", especially when symbolgen is active.
 
 ---------------------------------------------------------------------*/
@@ -100,7 +125,7 @@ this macro is "cleaner", especially when symbolgen is active.
 %macro squote
 /*---------------------------------------------------------------------
 Wrap the argument in single quotes.
----------------------------------------------------------------------*/ 
+---------------------------------------------------------------------*/
 (VALUE         /* Value to wrap in single quotes (Opt).              */
 );
 
