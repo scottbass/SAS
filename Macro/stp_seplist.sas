@@ -15,28 +15,10 @@ Program Version #       : 1.0
 
 =======================================================================
 
-Copyright (c) 2016 Scott Bass
+Copyright (c) 2016 Scott Bass (sas_l_739@yahoo.com.au)
 
-https://github.com/scottbass/SAS/tree/master/Macro
-
-Permission is hereby granted, free of charge, to any person obtaining a
-copy of this software and associated documentation files (the
-"Software"), to deal in the Software without restriction, including
-without limitation the rights to use, copy, modify, merge, publish,
-distribute, sublicense, and/or sell copies of the Software, and to
-permit persons to whom the Software is furnished to do so, subject to
-the following conditions:
-
-The above copyright notice and this permission notice shall be included
-in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+This code is licensed under the Unlicense license.
+For more information, please refer to http://unlicense.org/UNLICENSE.
 
 =======================================================================
 
@@ -96,31 +78,31 @@ a stored process:
 
 options mprint;
 %macro stp;
-   %local where;
-   %let where=%sysfunc(sum(&region_count,&product_count,&subsidiary_count));
-   options noserror nomerror;
-   data subset;
-      set sashelp.shoes;
-      %if (&where) %then %do;
-         where 1
-      %end;
-      %if (&region_count) %then %do;
-         and region in (%stp_seplist(region))
-      %end;
-      %if (&product_count) %then %do;
-         and product in (%stp_seplist(product))
-      %end;
-      %if (&subsidiary_count) %then %do;
-         and subsidiary in (%stp_seplist(subsidiary))
-      %end;
-      %if (&where) %then %do;
-         ;
-      %end;
-   run;
-   options serror merror;
+  %local where;
+  %let where=%sysfunc(sum(&region_count,&product_count,&subsidiary_count));
+  options noserror nomerror;
+  data subset;
+    set sashelp.shoes;
+    %if (&where) %then %do;
+      where 1
+    %end;
+    %if (&region_count) %then %do;
+      and region in (%stp_seplist(region))
+    %end;
+    %if (&product_count) %then %do;
+      and product in (%stp_seplist(product))
+    %end;
+    %if (&subsidiary_count) %then %do;
+      and subsidiary in (%stp_seplist(subsidiary))
+    %end;
+    %if (&where) %then %do;
+      ;
+    %end;
+  run;
+  options serror merror;
 
-   proc print;
-   run;
+  proc print;
+  run;
 %mend;
 %stp
 
@@ -188,10 +170,10 @@ separated list output.
 %* if count was not explicitly specified, a macro variable <mvar>_count ;
 %* should exist in the global environment.  if so, resolve it, otherwise assume 1 ;
 %if (&count eq ) %then %do;
-   %if (%symexist(&&mvar._count)) %then
-      %let count=&&&mvar._count;
-   %else
-      %let count=1;
+  %if (%symexist(&&mvar._count)) %then
+    %let count=&&&mvar._count;
+  %else
+    %let count=1;
 %end;
 
 %* compensate for the absolute braindead way SAS implemented a single element macro "array" ;
@@ -208,15 +190,13 @@ separated list output.
 %* (for example Savings&Loan, %change), then set the options noserror nomerror ;
 %* outside this macro.  I cannot set it here since this is a function style macro ;
 %do i=1 %to &count;
-   %if (&i gt 1) %then %let string=&string.&indlm;
-   %let temp=&&&mvar&i;
-   %if (&upper eq 1) %then %let temp=%upcase(&temp);
-   %let string=&string.&temp;
+  %if (&i gt 1) %then %let string=&string.&indlm;
+  %let temp=&&&mvar&i;
+  %if (&upper eq 1) %then %let temp=%upcase(&temp);
+  %let string=&string.&temp;
 %end;
 
 %seplist(%superq(string),indlm=&indlm,dlm=&dlm,nest=&nest)
 
 %quit:
 %mend;
-
-/******* END OF FILE *******/

@@ -1,8 +1,8 @@
 /*=====================================================================
 Program Name            : varlist.sas
-Purpose                 : Returns a string containing a space separated
-                          list of variables in a dataset.
-SAS Version             : Unknown (probably SAS 8.2)
+Purpose                 : Returns a string containing a space separated 
+                          list of variables in a dataset
+SAS Version             : SAS 9.3
 Input Data              : N/A
 Output Data             : N/A
 
@@ -14,32 +14,20 @@ Program Version #       : 1.0
 
 =======================================================================
 
-Copyright (c) 2016 Scott Bass
+Copyright (c) 2016 Scott Bass (sas_l_739@yahoo.com.au)
 
-https://github.com/scottbass/SAS/tree/master/Macro
-
-Permission is hereby granted, free of charge, to any person obtaining a
-copy of this software and associated documentation files (the
-"Software"), to deal in the Software without restriction, including
-without limitation the rights to use, copy, modify, merge, publish,
-distribute, sublicense, and/or sell copies of the Software, and to
-permit persons to whom the Software is furnished to do so, subject to
-the following conditions:
-
-The above copyright notice and this permission notice shall be included
-in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+This code is licensed under the Unlicense license.
+For more information, please refer to http://unlicense.org/UNLICENSE.
 
 =======================================================================
 
-Modification History    : Original version
+Modification History    :
+
+Programmer              : Scott Bass
+Date                    : 12AUG2016
+Change/reason           : Changed %parmv call on DATA parameter to
+                          allow ds options (i.e. drop and keep)
+Program Version #       : 1.1
 
 =====================================================================*/
 
@@ -47,41 +35,33 @@ Modification History    : Original version
 Usage:
 
 %put %varlist(sashelp.class);
-   Returns the list of variables in SASHELP.CLASS.
+%put %varlist(sashelp.shoes (keep=region--stores));
+%put %varlist(sashelp.stocks (drop=volume adjclose));
 
-options mprint;
-proc sql;
-   select %seplist(%varlist(SASHELP.CLASS),prefix=a.)
-   from SASHELP.CLASS as a
-   ;
-quit;
+Outputs the variable list of the source dataset, honouring any keep=
+or drop= options.
 
-   Returns the list of variables in SASHELP.CLASS,
-   then use the %seplist macro to format this as a comma separated list.
+Often this would be assigned to a macro variable, i.e.
+%let varlist=%varlist(sashelp.class)
 
 -----------------------------------------------------------------------
 Notes:
-
-This macro must be used in a context valid for a function call.
-
-It returns an RVALUE, so it must be assigned to a variable,
-i.e. be called on the right hand side of an equals sign.
 
 ---------------------------------------------------------------------*/
 
 %macro varlist
 /*---------------------------------------------------------------------
-Returns a string containing a space separated list of variables in a
+Return a string containing a space separated list of variables in a
 dataset.
 ---------------------------------------------------------------------*/
-(DATA          /* Source dataset (REQ).                              */
+(DATA          /* Input dataset (REQ)                                */
 );
 
 %local macro parmerr;
 
 %* check input parameters ;
 %let macro = &sysmacroname;
-%parmv(data,_req=1,_words=0,_case=U)
+%parmv(data,_req=1,_words=1,_case=U)
 
 %if (&parmerr) %then %goto quit;
 

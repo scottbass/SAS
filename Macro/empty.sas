@@ -1,5 +1,5 @@
 /*=====================================================================
-Program Name            : check_if_empty.sas
+Program Name            : empty.sas
 Purpose                 : Checks if the source dataset is empty.
 SAS Version             : SAS 9.4
 Input Data              : N/A
@@ -50,36 +50,36 @@ proc sql;
    ;
 quit;
 
-%put %check_if_empty(data=empty);         * should be 1 ;     
-%put %check_if_empty(data=not_empty);     * should be 0 ;
+%put %empty(data=empty);         * should be 1 ;     
+%put %empty(data=not_empty);     * should be 0 ;
 
-%put %check_if_empty(data=empty_dsv);     * should be 1 ;    
-%put %check_if_empty(data=not_empty_dsv); * should be 0 ;
+%put %empty(data=empty_dsv);     * should be 1 ;    
+%put %empty(data=not_empty_dsv); * should be 0 ;
 
-%put %check_if_empty(data=empty_sql);     * should be 1 ;
-%put %check_if_empty(data=not_empty_sql); * should be 0 ;
+%put %empty(data=empty_sql);     * should be 1 ;
+%put %empty(data=not_empty_sql); * should be 0 ;
 
-%put %check_if_empty(data=db_core.fsc_party_dim); * should be 0, works with Oracle tables too ;
+%put %empty(data=db_core.fsc_party_dim); * should be 0, works with Oracle tables too ;
 
-%put %check_if_empty(data=not_empty(where=(region='XXX'))); * should be 1, no obs match where clause ;
-%put %check_if_empty(data=doesnotexist);
-%put %check_if_empty(data=doesnotexist(where=(region='XXX')));
+%put %empty(data=not_empty(where=(region='XXX'))); * should be 1, no obs match where clause ;
+%put %empty(data=doesnotexist);
+%put %empty(data=doesnotexist(where=(region='XXX')));
 
 data _null_;
-   if %check_if_empty(data=empty) then
+   if %empty(data=empty) then
       put "Empty is empty";
    else
-   if %check_if_empty(data=not_empty) then
+   if %empty(data=not_empty) then
       put "Not_empty is empty";
 run;      
    
 %macro test;
    %let source=empty;
-   %let empty=%check_if_empty(data=&source);
+   %let empty=%empty(data=&source);
    %if &empty %then %put &source is empty.;
    
    %let source=not_empty;
-   %let empty=%check_if_empty(data=&source);
+   %let empty=%empty(data=&source);
    %if &empty %then %put &source is empty.;
 %mend;
 %test;
@@ -89,7 +89,7 @@ Notes:
 
 This macro is a "pure macro" and returns an rvalue.  It must be on the 
 right side of an assignment statement, or otherwise used where an 
-rvalue is appropriate, eg. %put %check_if_empty(data=foo).
+rvalue is appropriate, eg. %put %empty(data=foo).
 
 Returns 1 if the dataset/view/table is empty, 0 if not empty.
 So, the programming logic is 
@@ -98,7 +98,7 @@ So, the programming logic is
 
 ---------------------------------------------------------------------*/
 
-%macro check_if_empty
+%macro empty
 /*---------------------------------------------------------------------
 Checks if the source dataset is empty.
 ---------------------------------------------------------------------*/

@@ -13,28 +13,10 @@ Program Version #       : 1.0
 
 =======================================================================
 
-Copyright (c) 2016 Scott Bass
+Copyright (c) 2016 Scott Bass (sas_l_739@yahoo.com.au)
 
-https://github.com/scottbass/SAS/tree/master/Macro
-
-Permission is hereby granted, free of charge, to any person obtaining a
-copy of this software and associated documentation files (the
-"Software"), to deal in the Software without restriction, including
-without limitation the rights to use, copy, modify, merge, publish,
-distribute, sublicense, and/or sell copies of the Software, and to
-permit persons to whom the Software is furnished to do so, subject to
-the following conditions:
-
-The above copyright notice and this permission notice shall be included
-in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+This code is licensed under the Unlicense license.
+For more information, please refer to http://unlicense.org/UNLICENSE.
 
 =======================================================================
 
@@ -276,7 +258,7 @@ proc sql noprint;
          dictionary.macros
       where
          &mvars
-   ;
+   ; 
 quit;
 %lock(member=save.parameters,action=clear)
 
@@ -304,8 +286,9 @@ NOTE:  Do NOT change the single/double quoting below, or you will likely break t
 
 /*
 %* We need to specify a service user credentials for the spawned SAS job ;
+%* For now just use my credentials until the service user is setup (including TeraProdAuth Domain) ;
 */
-%let parms=&parms -metauser serviceuser -metapass {sas002}1234567890ABCDEF1234567890ABCDEF;
+%let parms=&parms -metauser m49505 -metapass {sas002}5F4652380A480B7F1295D9FD49482080;
 
 /*
 Invoke the SAS batch job.

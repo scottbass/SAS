@@ -1,4 +1,4 @@
-/*=====================================================================
+/*====================================================================
 Program Name            : kill.sas
 Purpose                 : Deletes specified contents from a library
 SAS Version             : SAS 9.1.3
@@ -11,30 +11,12 @@ Originally Written by   : Scott Bass
 Date                    : 15Feb2010
 Program Version #       : 1.0
 
-=======================================================================
+======================================================================
 
-Copyright (c) 2016 Scott Bass
+Copyright (c) 2016 Scott Bass (sas_l_739@yahoo.com.au)
 
-https://github.com/scottbass/SAS/tree/master/Macro
-
-Permission is hereby granted, free of charge, to any person obtaining a
-copy of this software and associated documentation files (the
-"Software"), to deal in the Software without restriction, including
-without limitation the rights to use, copy, modify, merge, publish,
-distribute, sublicense, and/or sell copies of the Software, and to
-permit persons to whom the Software is furnished to do so, subject to
-the following conditions:
-
-The above copyright notice and this permission notice shall be included
-in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+This code is licensed under the Unlicense license.
+For more information, please refer to http://unlicense.org/UNLICENSE.
 
 =======================================================================
 
@@ -45,9 +27,16 @@ Date                    : 30JAN2012
 Change/reason           : Added data parameter.
 Program Version #       : 1.1
 
-+====================================================================*/
+Programmer              : Scott Bass
+Date                    : 01AUG2016
+Change/reason           : Changed save/delete/data parameters to not
+                          change the case.  Table names are case
+                          sensitive when working with RDBMS's. 
+Program Version #       : 1.2
 
-/*---------------------------------------------------------------------
++===================================================================*/
+
+/*--------------------------------------------------------------------
 Usage:
 
 %kill;
@@ -105,7 +94,7 @@ Usage:
 
    Deletes the FOO dataset or view from the claims library.
 
------------------------------------------------------------------------
+----------------------------------------------------------------------
 Notes:
 
 The complete list of member types that can be specified to
@@ -116,33 +105,33 @@ A blank type= parameter is equivalent to DATA VIEW.
 Only one of data=, delete=, or save= options can be specified.  If both
 are specified an error message is returned.
 
----------------------------------------------------------------------*/
+--------------------------------------------------------------------*/
 
 %macro kill
-/*---------------------------------------------------------------------
+/*--------------------------------------------------------------------
 Deletes specified contents from a library
----------------------------------------------------------------------*/
-(LIB=          /* Input library (Opt).  If not specified,            */
-               /* the WORK library is used.                          */
+--------------------------------------------------------------------*/
+(LIB=          /* Input library (Opt).  If not specified,           */
+               /* the WORK library is used.                         */
 ,TYPE=DATA VIEW
-               /* Member type affected (Opt).  If not specified,     */
-               /* all datasets and views are deleted.                */
-               /* Valid values are DATA, VIEW, CATALOG, ALL          */
-,SAVE=         /* Member names to save from deletion (Opt).          */
-               /* If not specified, all items are deleted.  If the   */
-               /* member name does not exist in the specified        */
-               /* library, no error occurs, but also no error        */
-               /* message is displayed.                              */
-,DELETE=       /* Member names to delete (Opt).                      */
-               /* If not specified, all items are deleted.  If the   */
-               /* member name does not exist in the specified        */
-               /* library, no error occurs, but also no error        */
-               /* message is displayed.                              */
-,DATA=         /* Member name to delete (Opt).                       */
-               /* Only a single name can be specified.               */
-               /* If a one-level name is specified, the USER         */
-               /* option is used for the library.  If the USER       */
-               /* option is blank then WORK is used for the library. */
+               /* Member type affected (Opt).  If not specified,    */
+               /* all datasets and views are deleted.               */
+               /* Valid values are DATA, VIEW, CATALOG, ALL         */
+,SAVE=         /* Member names to save from deletion (Opt).         */
+               /* If not specified, all items are deleted.  If the  */
+               /* member name does not exist in the specified       */
+               /* library, no error occurs, but also no error       */
+               /* message is displayed.                             */
+,DELETE=       /* Member names to delete (Opt).                     */
+               /* If not specified, all items are deleted.  If the  */
+               /* member name does not exist in the specified       */
+               /* library, no error occurs, but also no error       */
+               /* message is displayed.                             */
+,DATA=         /* Member name to delete (Opt).                      */
+               /* Only a single name can be specified.              */
+               /* If a one-level name is specified, the USER        */
+               /* option is used for the library.  If the USER      */
+               /* option is blank then WORK is used for the library.*/
 );
 
 %local macro parmerr kill readonly;
@@ -151,9 +140,9 @@ Deletes specified contents from a library
 %* check input parameters ;
 %parmv(LIB,           _req=0,_words=0,_case=U)
 %parmv(TYPE,          _req=0,_words=1,_case=U,_val=DATA VIEW CATALOG ALL)
-%parmv(SAVE,          _req=0,_words=1,_case=U)
-%parmv(DELETE,        _req=0,_words=1,_case=U)
-%parmv(DATA,          _req=0,_words=1,_case=U)
+%parmv(SAVE,          _req=0,_words=1,_case=N)
+%parmv(DELETE,        _req=0,_words=1,_case=N)
+%parmv(DATA,          _req=0,_words=1,_case=N)
 
 %let check=%eval((&save ne ) + (&delete ne ) + (&data ne ));
 %if (&check gt 1) %then
@@ -163,11 +152,11 @@ Deletes specified contents from a library
 
 %* If DATA was specified, parse into LIB and DELETE ;
 %if (&data ne ) %then %do;
-   %let delete=%scan(&data,2,.);  %* two level name ;
-   %if (&delete eq ) %then
-      %let delete=%scan(&data,1,.); %* one level name ;
-   %else
-      %let lib=%scan(&data,1,.);
+  %let delete=%scan(&data,2,.);  %* two level name ;
+  %if (&delete eq ) %then
+    %let delete=%scan(&data,1,.); %* one level name ;
+  %else
+    %let lib=%scan(&data,1,.);
 %end;
 
 %* if library was not specified, use USER= option, then use WORK ;

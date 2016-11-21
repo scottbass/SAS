@@ -14,28 +14,10 @@ Program Version #       : 1.0
 
 =======================================================================
 
-Copyright (c) 2016 Scott Bass
+Copyright (c) 2016 Scott Bass (sas_l_739@yahoo.com.au)
 
-https://github.com/scottbass/SAS/tree/master/Macro
-
-Permission is hereby granted, free of charge, to any person obtaining a
-copy of this software and associated documentation files (the
-"Software"), to deal in the Software without restriction, including
-without limitation the rights to use, copy, modify, merge, publish,
-distribute, sublicense, and/or sell copies of the Software, and to
-permit persons to whom the Software is furnished to do so, subject to
-the following conditions:
-
-The above copyright notice and this permission notice shall be included
-in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+This code is licensed under the Unlicense license.
+For more information, please refer to http://unlicense.org/UNLICENSE.
 
 =======================================================================
 
@@ -77,15 +59,15 @@ libname excel excel   "C:\Temp\temp.xls";  * this file must exist ;
 %put %get_lib_attr(sashelp,path,levels=0);
 
 %macro parse_output;
-   %put %get_lib_attr(spde,sysname,levels=0);
-   %put %get_lib_attr(spde,sysvalue,levels=0);
-   %let _sysname=%get_lib_attr(spde,sysname,levels=0);
-   %let _sysvalue=%get_lib_attr(spde,sysvalue,levels=0);
-   %put sysname=&_sysname;
-   %put sysvalue=&_sysvalue;
-   %do i=1 %to 4;
-      %put %scan(&_sysname,&i,^)=%scan(&_sysvalue,&i,^);
-   %end;
+  %put %get_lib_attr(spde,sysname,levels=0);
+  %put %get_lib_attr(spde,sysvalue,levels=0);
+  %let _sysname=%get_lib_attr(spde,sysname,levels=0);
+  %let _sysvalue=%get_lib_attr(spde,sysvalue,levels=0);
+  %put sysname=&_sysname;
+  %put sysvalue=&_sysvalue;
+  %do i=1 %to 4;
+    %put %scan(&_sysname,&i,^)=%scan(&_sysvalue,&i,^);
+  %end;
 %mend;
 %parse_output;
 
@@ -168,14 +150,14 @@ TEMP
 %* if levels=0 then return all items in a delimited list ;
 %* else just return the specified record (usually 1) ;
 %if (&levels eq 0) %then %do;
-   %do %while (%sysfunc(fetch(&dsid)) eq 0);
-   %* do not indent the below line ;
+  %do %while (%sysfunc(fetch(&dsid)) eq 0);
+  %* do not indent the below line ;
 %trim(%left(&&&attr)) &dlm
-   %end;
+  %end;
 %end;
 %else %do;
-   %let rc=%sysfunc(fetchobs(&dsid,&levels));
-   %* do not indent the below line ;
+  %let rc=%sysfunc(fetchobs(&dsid,&levels));
+  %* do not indent the below line ;
 %trim(%left(&&&attr))
 %end;
 %let dsid=%sysfunc(close(&dsid));

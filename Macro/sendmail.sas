@@ -13,28 +13,10 @@ Program Version #       : 1.0
 
 =======================================================================
 
-Copyright (c) 2016 Scott Bass
+Copyright (c) 2016 Scott Bass (sas_l_739@yahoo.com.au)
 
-https://github.com/scottbass/SAS/tree/master/Macro
-
-Permission is hereby granted, free of charge, to any person obtaining a
-copy of this software and associated documentation files (the
-"Software"), to deal in the Software without restriction, including
-without limitation the rights to use, copy, modify, merge, publish,
-distribute, sublicense, and/or sell copies of the Software, and to
-permit persons to whom the Software is furnished to do so, subject to
-the following conditions:
-
-The above copyright notice and this permission notice shall be included
-in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+This code is licensed under the Unlicense license.
+For more information, please refer to http://unlicense.org/UNLICENSE.
 
 =======================================================================
 
@@ -66,8 +48,8 @@ data mail;
 run;
 
 %sendmail(
-    to=&sysuserid
-   ,subject=%str(This is the subject as of &sysdate and &systime)
+  to=&sysuserid
+  ,subject=%str(This is the subject as of &sysdate and &systime)
 )
 
 =======================================================================
@@ -99,9 +81,9 @@ run;
 
 * send a "subject only" email without any email message ;
 %sendmail(
-    metadata=_null_
-   ,to=&sysuserid
-   ,subject=%str(This is the subject as of &sysdate and &systime)
+  metadata=_null_
+  ,to=&sysuserid
+  ,subject=%str(This is the subject as of &sysdate and &systime)
 )
 
 -----------------------------------------------------------------------
@@ -150,7 +132,8 @@ Macro to send an email using a metadata dataset
 ,TO=           /* To addressee (Opt).                                */
 ,CC=           /* Cc addressee (Opt).                                */
 ,BCC=          /* Bcc addressee (Opt).                               */
-,FROM=         /* From addressee (Opt).                              */
+,FROM=
+               /* From addressee (Opt).                              */
 ,REPLYTO=      /* Reply-to addressee (Opt).                          */
 ,SUBJECT=      /* Subject (Opt).                                     */
 ,ATTACH=       /* Attachment (Opt).                                  */
@@ -172,32 +155,32 @@ Macro to send an email using a metadata dataset
 %* overwriting any parameters passed in as macro parameters ;
 %let options=%sysfunc(getoption(serror));
 %if (&metadata_exists) %then %do;
-   options noserror;
-   data _null_;
-      set &metadata end=eof;
-      where parm is not missing;
-      length to cc bcc attach $10000;  /* adjust length as desired, but make long enough for resolved values */
-      retain to cc bcc attach;
-      select(upcase(parm));
-         when("TO")     to       = catx("^",to,       line);
-         when("CC")     cc       = catx("^",cc,       line);
-         when("BCC")    bcc      = catx("^",bcc,      line);
-         when("ATTACH") attach   = catx("^",attach,   line);
-         when("FROM","REPLYTO","SUBJECT","CONTENT_TYPE","ENCODING")
-            call symputx(parm,line);
-         otherwise do;
-            put "ERR" "OR: " parm "is an invalid parameter.";
-            call symputx("parmerr",1);
-            stop;
-         end;
-      end;
-      if eof then do;
-         if length(to)     then call symputx("TO",     to);
-         if length(cc)     then call symputx("CC",     cc);
-         if length(bcc)    then call symputx("BCC",    bcc);
-         if length(attach) then call symputx("ATTACH", attach);
-      end;
-   run;
+  options noserror;
+  data _null_;
+     set &metadata end=eof;
+     where parm is not missing;
+     length to cc bcc attach $10000;  /* adjust length as desired, but make long enough for resolved values */
+     retain to cc bcc attach;
+     select(upcase(parm));
+        when("TO")     to       = catx("^",to,       line);
+        when("CC")     cc       = catx("^",cc,       line);
+        when("BCC")    bcc      = catx("^",bcc,      line);
+        when("ATTACH") attach   = catx("^",attach,   line);
+        when("FROM","REPLYTO","SUBJECT","CONTENT_TYPE","ENCODING")
+           call symputx(parm,line);
+        otherwise do;
+           put "ERR" "OR: " parm "is an invalid parameter.";
+           call symputx("parmerr",1);
+           stop;
+        end;
+     end;
+     if eof then do;
+        if length(to)     then call symputx("TO",     to);
+        if length(cc)     then call symputx("CC",     cc);
+        if length(bcc)    then call symputx("BCC",    bcc);
+        if length(attach) then call symputx("ATTACH", attach);
+     end;
+  run;
 %end;
 
 %if (&parmerr) %then %goto quit;
@@ -267,3 +250,4 @@ options &options;
 %mend;
 
 /******* END OF FILE *******/
+

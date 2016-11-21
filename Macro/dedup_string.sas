@@ -1,4 +1,4 @@
-/*=====================================================================
+/*====================================================================
 Program Name            : dedup_string.sas
 Purpose                 : Removes duplicate items from a string
 SAS Version             : SAS 9.2
@@ -11,46 +11,28 @@ Originally Written by   : Scott Bass
 Date                    : 29AUG2011
 Program Version #       : 1.0
 
-=======================================================================
+======================================================================
 
-Copyright (c) 2016 Scott Bass
+Copyright (c) 2016 Scott Bass (sas_l_739@yahoo.com.au)
 
-https://github.com/scottbass/SAS/tree/master/Macro
-
-Permission is hereby granted, free of charge, to any person obtaining a
-copy of this software and associated documentation files (the
-"Software"), to deal in the Software without restriction, including
-without limitation the rights to use, copy, modify, merge, publish,
-distribute, sublicense, and/or sell copies of the Software, and to
-permit persons to whom the Software is furnished to do so, subject to
-the following conditions:
-
-The above copyright notice and this permission notice shall be included
-in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+This code is licensed under the Unlicense license.
+For more information, please refer to http://unlicense.org/UNLICENSE.
 
 =======================================================================
 
 Modification History    : Original version
 
-=====================================================================*/
+====================================================================*/
 
-/*---------------------------------------------------------------------
+/*--------------------------------------------------------------------
 Usage:
 
 data _null_;
-   oldstring="C A B B A G E 3 2 1 1 2 3";
-   %dedup_string(invar=oldstring, outvar=newstring);
-   %* dedup_string(invar=oldstring);
-   put oldstring=;
-   put newstring=;
+  oldstring="C A B B A G E 3 2 1 1 2 3";
+  %dedup_string(invar=oldstring, outvar=newstring);
+  %* dedup_string(invar=oldstring);
+  put oldstring=;
+  put newstring=;
 run;
 
 Dedups the input string oldstring, returning "C A B G E 3 2 1"
@@ -58,34 +40,34 @@ Dedups the input string oldstring, returning "C A B G E 3 2 1"
 The first invocation creates a new variable, the second invocation
 dedups the old variable in place.
 
-=======================================================================
+======================================================================
 
 data _null_;
-   length oldstring newstring $200;
-   oldstring="C|A|B|B|A|G|E|3|2|1|1|2|3";
-   %* dedup_string(invar=oldstring, outvar=newstring, dlm=|);
-   %dedup_string(invar=oldstring, dlm=|);
-   put oldstring=;
-   put newstring=;
+  length oldstring newstring $200;
+  oldstring="C|A|B|B|A|G|E|3|2|1|1|2|3";
+  %* dedup_string(invar=oldstring, outvar=newstring, dlm=|);
+  %dedup_string(invar=oldstring, dlm=|);
+  put oldstring=;
+  put newstring=;
 run;
 
 Same as above but using a different tokenization delimiter.
 
------------------------------------------------------------------------
+----------------------------------------------------------------------
 Notes:
 
 This macro must be called from within a data step.
 
----------------------------------------------------------------------*/
+--------------------------------------------------------------------*/
 
 %macro dedup_string
-/*---------------------------------------------------------------------
+/*--------------------------------------------------------------------
 Removes duplicate items from a string using hash objects
----------------------------------------------------------------------*/
-(INVAR=        /* Input variable name (REQ).                         */
-,OUTVAR=       /* Output variable name (Opt).                        */
-,DLM=          /* Delimiter marking each token in the input string   */
-               /* (Opt).  If not specified, a space will be used.    */
+--------------------------------------------------------------------*/
+(INVAR=        /* Input variable name (REQ).                        */
+,OUTVAR=       /* Output variable name (Opt).                       */
+,DLM=          /* Delimiter marking each token in the input string  */
+               /* (Opt).  If not specified, a space will be used.   */
 );
 
 %local macro parmerr;
@@ -108,7 +90,7 @@ length __word $200 __temp $32767;
 %* if outvar ne invar define length of outvar via assignment statement ;
 %* the data in outvar can never be longer than invar, only shorter ;
 %if (&outvar ne &invar) %then %do;
-   if 0 then &outvar=&invar;
+  if 0 then &outvar=&invar;
 %end;
 
 %* need to use a temporary variable when updating in place ;
@@ -117,9 +99,9 @@ call missing(&outvar);
 
 %* process the input string, comparing current token with tokens already in output string ;
 do __i = 1 by 1;
-   __word=scan(__temp,__i,' ');
-   if missing(__word) then leave;
-   if indexw(upcase(&outvar),upcase(__word)) eq 0 then &outvar=catx(' ',&outvar,__word);
+  __word=scan(__temp,__i,' ');
+  if missing(__word) then leave;
+  if indexw(upcase(&outvar),upcase(__word)) eq 0 then &outvar=catx(' ',&outvar,__word);
 end;
 
 drop __temp __word __i;

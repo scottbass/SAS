@@ -1,4 +1,4 @@
-/*=====================================================================
+/*====================================================================
 Program Name            : hash_define.sas
 Purpose                 : Defines a hash object for later lookup.
 SAS Version             : SAS 9.1.3
@@ -11,34 +11,16 @@ Originally Written by   : Scott Bass
 Date                    : 12MAY2010
 Program Version #       : 1.0
 
-=======================================================================
+======================================================================
 
-Copyright (c) 2016 Scott Bass
+Copyright (c) 2016 Scott Bass (sas_l_739@yahoo.com.au)
 
-https://github.com/scottbass/SAS/tree/master/Macro
-
-Permission is hereby granted, free of charge, to any person obtaining a
-copy of this software and associated documentation files (the
-"Software"), to deal in the Software without restriction, including
-without limitation the rights to use, copy, modify, merge, publish,
-distribute, sublicense, and/or sell copies of the Software, and to
-permit persons to whom the Software is furnished to do so, subject to
-the following conditions:
-
-The above copyright notice and this permission notice shall be included
-in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+This code is licensed under the Unlicense license.
+For more information, please refer to http://unlicense.org/UNLICENSE.
 
 =======================================================================
 
-Modification History    : Original version
+Modification History    : 
 
 Programmer              : Scott Bass
 Date                    : 22JUL2011
@@ -62,9 +44,9 @@ Date                    : 30MAY2016
 Change/reason           : Added duplicate option.
 Program Version #       : 1.4
 
-=====================================================================*/
+====================================================================*/
 
-/*---------------------------------------------------------------------
+/*--------------------------------------------------------------------
 Usage:
 
 data source;
@@ -114,7 +96,7 @@ run;
 proc print;
 run;
 
-=======================================================================
+======================================================================
 
 * "Standard" lookup with renames ;
 data joined;
@@ -130,47 +112,47 @@ run;
 proc print;
 run;
 
-=======================================================================
+======================================================================
 
 * Multidata lookup - better source/lookup example datasets ;
 data lookup;
-   set
-      sashelp.class
-      sashelp.class
-      sashelp.class
-   ;
+  set
+    sashelp.class
+    sashelp.class
+    sashelp.class
+  ;
 run;
 
 proc sort;
-   by name;
+  by name;
 run;
 
 * build dummy date ranges ;
 data lookup;
-   set lookup;
-   date=(_n_-1)*3;
-   format date date7.;
+  set lookup;
+  date=(_n_-1)*3;
+  format date date7.;
 run;
 
 * Multidata lookup with single %hash_lookup macro call ;
 data joined;
-   * set PDV order (optional) ;
-   if 0 then set lookup;
+  * set PDV order (optional) ;
+  if 0 then set lookup;
 
-   * initialize &_hashnum_ to zero then declare hash objects ;
-   %let _hashnum_=0;
-   %hash_define(data=lookup, keys=name, vars=_all_, multidata=Y)
+  * initialize &_hashnum_ to zero then declare hash objects ;
+  %let _hashnum_=0;
+  %hash_define(data=lookup, keys=name, vars=_all_, multidata=Y)
 
-   set sashelp.class (keep=name);
-   %hash_lookup(hashnum=1, lookup="01JAN60"d le date le "15JAN60"d, link=derive, return=Y)
+  set sashelp.class (keep=name);
+  %hash_lookup(hashnum=1, lookup="01JAN60"d le date le "15JAN60"d, link=derive, return=Y)
 
-   * some dummy derivations for illustration only ;
-   derive:
-      height=height*1000;
-      weight=age*1000;
-      new=date;
-      format new yymmddd.;
-   return;
+  * some dummy derivations for illustration only ;
+  derive:
+    height=height*1000;
+    weight=age*1000;
+    new=date;
+    format new yymmddd.;
+  return;
 
 *  drop _rc_h:;  * optional ;
 run;
@@ -178,30 +160,30 @@ run;
 proc print;
 run;
 
-=======================================================================
+======================================================================
 
 * Multidata lookup with multiple %hash_lookup macro calls ;
 * (for code generation illustration only - normally different lookup datasets would be used) ;
 data joined;
-   * set PDV order (optional) ;
-   if 0 then set lookup;
+  * set PDV order (optional) ;
+  if 0 then set lookup;
 
-   * initialize &_hashnum_ to zero then declare hash objects ;
-   %let _hashnum_=0;
-   %hash_define(data=lookup, keys=name, vars=_all_, multidata=Y)
-   %hash_define(data=lookup, keys=name, vars=_all_, multidata=Y)
+  * initialize &_hashnum_ to zero then declare hash objects ;
+  %let _hashnum_=0;
+  %hash_define(data=lookup, keys=name, vars=_all_, multidata=Y)
+  %hash_define(data=lookup, keys=name, vars=_all_, multidata=Y)
 
-   set sashelp.class (keep=name);
-   %hash_lookup(hashnum=1, lookup="01JAN60"d le date le "15JAN60"d, link=derive, return=N)
-   %hash_lookup(hashnum=2, lookup=age le 12,                        link=derive, return=Y)
+  set sashelp.class (keep=name);
+  %hash_lookup(hashnum=1, lookup="01JAN60"d le date le "15JAN60"d, link=derive, return=N)
+  %hash_lookup(hashnum=2, lookup=age le 12,                        link=derive, return=Y)
 
-   * some dummy derivations for illustration only ;
-   derive:
-      height=height*1000;
-      weight=age*1000;
-      new=date;
-      format new yymmddd.;
-   return;
+  * some dummy derivations for illustration only ;
+  derive:
+    height=height*1000;
+    weight=age*1000;
+    new=date;
+    format new yymmddd.;
+  return;
 
 *  drop _rc_h:;  * optional ;
 run;
@@ -209,53 +191,53 @@ run;
 proc print;
 run;
 
-=======================================================================
+======================================================================
 
 * Hash names used instead of hash numbers ;
 data joined;
-   * set PDV order (optional) ;
-   if 0 then set lookup;
+  * set PDV order (optional) ;
+  if 0 then set lookup;
 
-   %let _hashnum_=0;
-   %hash_define(hashname=foo, data=lookup, keys=name, vars=_all_)
+  %let _hashnum_=0;
+  %hash_define(hashname=foo, data=lookup, keys=name, vars=_all_)
 
-   * This next invocation does not specify an explicit name, ;
-   * so its name is the default name _h2 ;
-   %hash_define(              data=lookup, keys=name, vars=_all_)
+  * This next invocation does not specify an explicit name, ;
+  * so its name is the default name _h2 ;
+  %hash_define(              data=lookup, keys=name, vars=_all_)
 
-   %hash_define(hashname=_bar,data=lookup, keys=name, vars=_all_)
+  %hash_define(hashname=_bar,data=lookup, keys=name, vars=_all_)
+  
+  * At this point, &_hashname_=foo | _h2 | _bar ;
 
-   * At this point, &_hashname_=foo | _h2 | _bar ;
+  set sashelp.class (keep=name);
+  
+  * even though a hash name was used, the default hash_lookup ;
+  * will process all hash objects ;
+  %hash_lookup;
+  
+  * or you can process by number ;
+  %hash_lookup(hashnum=1)
+  %hash_lookup(hashnum=2)
+  %hash_lookup(hashnum=3)
+  
+  * or you can process by name (in any order) ;
+  %hash_lookup(hashname=_bar)
+  %hash_lookup(hashname=foo)
 
-   set sashelp.class (keep=name);
-
-   * even though a hash name was used, the default hash_lookup ;
-   * will process all hash objects ;
-   %hash_lookup;
-
-   * or you can process by number ;
-   %hash_lookup(hashnum=1)
-   %hash_lookup(hashnum=2)
-   %hash_lookup(hashnum=3)
-
-   * or you can process by name (in any order) ;
-   %hash_lookup(hashname=_bar)
-   %hash_lookup(hashname=foo)
-
-   if _rc_foo ne 0 then put "Lookup failed for hash foo " key1= key2=;
-   if _rc_bar ne 0 then put "Lookup failed for hash bar " key1= key2=;
+  if _rc_foo ne 0 then put "Lookup failed for hash foo " key1= key2=;
+  if _rc_bar ne 0 then put "Lookup failed for hash bar " key1= key2=;
 
 *  drop _rc_:;  * optional ;
 run;
 
------------------------------------------------------------------------
+----------------------------------------------------------------------
 Notes:
 
 Set &_hashnum_ = 0 before calling this macro for the first time.
 &_hashnum_ is incremented each time this macro is called.
 
 (Technically you do not have to set _hashnum_ in the calling program,
- but it will get created on the first %hash_define invocation,
+ but it will get created on the first %hash_define invocation, 
  and incremented each time %hash_define is called.
  This would be a problem in a development environment like EG or DMS,
  but would not be an issue in batch processing.
@@ -279,17 +261,17 @@ If the HASHNAME parameter is specified, that name is used for the
 hash object, and for the return code set by %hash_lookup.
 
 The default return code variable is _rc_h1, _rc_h2,..., _rc_n<n>.
-If the HASHNAME parameter was specified in %hash_define, the
+If the HASHNAME parameter was specified in %hash_define, the 
 return code variable is named _rc_<hashname>.  If the hashname
 contains a leading underscore, it is removed from the return
 code variable.
 
-For example, if the HASHNAME parameter = _myhash,
-the generated code will be
-_rc_myhash = _myhash.find(), instead of
-_rc__myhash = _myhash.find().
+For example, if the HASHNAME parameter = _myhash, 
+the generated code will be 
+_rc_myhash = _myhash.find(), instead of 
+_rc__myhash = _myhash.find(). 
 
-The return code indicates whether the lookup was successful,
+The return code indicates whether the lookup was successful, 
 and is similar to IN= dataset option on a merge.
 
 If the VARS parameter is not specified, then no additional variables
@@ -313,7 +295,7 @@ be specified from the perspective of the virtual names, i.e. the
 renamed variables.
 
 By default, the first key in the load dataset is added to the hash
-object, and all other keys are ignored.
+object, and all other keys are ignored.  
 If REPLACE=R, then the last key in the load dataset is added to the hash object.
 If REPLACE=E, then duplicate keys in the load dataset will generate an error.
 
@@ -329,52 +311,52 @@ additional observations from the lookup dataset. The resulting number
 of observations will match the number of observations in the source
 dataset.
 
----------------------------------------------------------------------*/
+--------------------------------------------------------------------*/
 
 %macro hash_define
-/*---------------------------------------------------------------------
+/*--------------------------------------------------------------------
 Defines a hash object for later lookup
----------------------------------------------------------------------*/
-(DATA=         /* Lookup dataset (Opt).                              */
-               /* If specified, the lookup dataset loads the hash    */
-               /* object.  If not specified, an empty hash object    */
-               /* is created.                                        */
-,KEYS=         /* Lookup keys (REQ).                                 */
-,VARS=         /* Lookup satellite variables (Opt).                  */
-               /* Default is no additional variables from the lookup */
-               /* dataset.  Specify _ALL_ to return all variables    */
-               /* from the lookup dataset.                           */
-,RENAME=       /* Rename lookup keys or satellite variables (Opt).   */
-               /* If specified, then specify as oldname1=newname1    */
-               /* oldname2=newname2 etc.                             */
-,WHERE=        /* Where clause to apply to the lookup dataset(Opt).  */
-,KEEP=         /* Additional keep variables (Opt).                   */
-               /* KEYS= and VARS= variables are automatically kept,  */
-               /* specify KEEP= if you have variables needed for a   */
-               /* WHERE= clause that are neither key nor satellite   */
-               /* variables.                                         */
-,ORDERED=N     /* Store lookup table in sorted order? (REQ).         */
-               /* Valid values are N=none, A=ascending, D=descending */
-               /* (case insensitive).                                */
-               /* Default=none.                                      */
-,MULTIDATA=N   /* Multiple key values allowed in the lookup hash     */
-               /* object? (REQ).                                     */
-               /* Default value is NO.  Valid values are:            */
-               /* 0 1 OFF N NO F FALSE and ON Y YES T TRUE           */
-               /* OFF N NO F FALSE and ON Y YES T TRUE               */
-               /* (case insensitive) are acceptable aliases for      */
-               /* 0 and 1 respectively.                              */
-,REPLACE=      /* Replace keys that have already been loaded into    */
-               /* the hash object? (Opt).                            */
-               /* Default value is <blank>, the first key is loaded  */
-               /* and all other keys are ignored.                    */
-               /* If REPLACE=R | REPLACE, duplicate keys overwrite   */
-               /* previous keys, i.e. the last key is loaded.        */
-               /* If REPLACE=E | ERROR, duplicate keys will          */
-               /* generate an error.                                 */
-,HASHNAME=     /* Explicit hash object name (Opt.)                   */
-               /* If not specified, the default name                 */
-               /* _h<hashnum> is used.                               */
+--------------------------------------------------------------------*/
+(DATA=         /* Lookup dataset (Opt).                             */
+               /* If specified, the lookup dataset loads the hash   */
+               /* object.  If not specified, an empty hash object   */
+               /* is created.                                       */
+,KEYS=         /* Lookup keys (REQ).                                */
+,VARS=         /* Lookup satellite variables (Opt).                 */
+               /* Default is no additional variables from the lookup*/
+               /* dataset.  Specify _ALL_ to return all variables   */
+               /* from the lookup dataset.                          */
+,RENAME=       /* Rename lookup keys or satellite variables (Opt).  */
+               /* If specified, then specify as oldname1=newname1   */
+               /* oldname2=newname2 etc.                            */
+,WHERE=        /* Where clause to apply to the lookup dataset(Opt). */
+,KEEP=         /* Additional keep variables (Opt).                  */
+               /* KEYS= and VARS= variables are automatically kept, */
+               /* specify KEEP= if you have variables needed for a  */
+               /* WHERE= clause that are neither key nor satellite  */
+               /* variables.                                        */
+,ORDERED=N     /* Store lookup table in sorted order? (REQ).        */
+               /* Valid values are N=none, A=ascending, D=descending*/
+               /* (case insensitive).                               */
+               /* Default=none.                                     */
+,MULTIDATA=N   /* Multiple key values allowed in the lookup hash    */
+               /* object? (REQ).                                    */
+               /* Default value is NO.  Valid values are:           */
+               /* 0 1 OFF N NO F FALSE and ON Y YES T TRUE          */
+               /* OFF N NO F FALSE and ON Y YES T TRUE              */
+               /* (case insensitive) are acceptable aliases for     */
+               /* 0 and 1 respectively.                             */
+,REPLACE=      /* Replace keys that have already been loaded into   */
+               /* the hash object? (Opt).                           */
+               /* Default value is <blank>, the first key is loaded */
+               /* and all other keys are ignored.                   */
+               /* If REPLACE=R | REPLACE, duplicate keys overwrite  */
+               /* previous keys, i.e. the last key is loaded.       */
+               /* If REPLACE=E | ERROR, duplicate keys will         */
+               /* generate an error.                                */               
+,HASHNAME=     /* Explicit hash object name (Opt.)                  */
+               /* If not specified, the default name                */
+               /* _h<hashnum> is used.                              */
 );
 
 %local macro parmerr keep rx hn;
@@ -406,22 +388,22 @@ Defines a hash object for later lookup
 
 %* convert the keep variables to the physical names ;
 %macro _convert_;
-   %let rx=%sysfunc(prxparse(s/%scan(&word,2,=)/%scan(&word,1,=)/i));
-   %let keep=%sysfunc(prxchange(&rx,-1,&keep));
-   %syscall prxfree(rx);
+  %let rx=%sysfunc(prxparse(s/%scan(&word,2,=)/%scan(&word,1,=)/i));
+  %let keep=%sysfunc(prxchange(&rx,-1,&keep));
+  %syscall prxfree(rx);
 %mend;
 %loop(%superq(rename),mname=_convert_)
 
 %* declare _hashnum_ as a global variable for use in %hash_lookup macro ;
 %if (^%symexist(_hashnum_)) %then %do;
-   %global _hashnum_;
-   %let _hashnum_=0;
+  %global _hashnum_;
+  %let _hashnum_=0;
 %end;
 
 %* declare _hashname_ as a global variable for use in %hash_lookup macro ;
 %if (^%symexist(_hashname_)) %then %do;
-   %global _hashname_;
-   %let _hashname_= ;
+  %global _hashname_;
+  %let _hashname_= ;
 %end;
 
 %* increment _hashnum_ ;
@@ -432,11 +414,11 @@ Defines a hash object for later lookup
 
 %* if an explicit hash name was specified use it, ;
 %* otherwise set the default hash name of _h<hashnum> ;
-%if (&hashname eq ) %then
+%if (&hashname eq ) %then 
    %let hn=_h&_hashnum_;
 %else
    %let hn=&hashname;
-
+   
 %* append the hashname to &_hashname_ with a pipe (|) delimiter ;
 %if (&_hashnum_ gt 1) %then %let _hashname_ = &_hashname_ |;
 %let _hashname_ = &_hashname_ &hn;
@@ -445,56 +427,56 @@ Defines a hash object for later lookup
 %local options;
 
 %if (%superq(keep)%superq(rename)%superq(where) ne ) %then
-   %let options=%str(%();
+  %let options=%str(%();
 %if (%superq(keep)    ne ) %then
-   %let options=%superq(options) keep=%superq(keep);
+  %let options=%superq(options) keep=%superq(keep);
 %if (%superq(rename)  ne ) %then
-   %let options=%superq(options) rename=(%superq(rename));
+  %let options=%superq(options) rename=(%superq(rename));
 %if (%superq(where)   ne ) %then
-   %let options=%superq(options) where=(%superq(where));
+  %let options=%superq(options) where=(%superq(where));
 %if (%superq(options) ne ) %then
-   %let options=%superq(options) %str(%));
+  %let options=%superq(options) %str(%));
 %let options=%unquote(&options);
 
 %* declare hash object(s) on first iteration of the datastep ;
 if (_n_ = 1) then do;
-   %if (&data ne ) %then %do;
-   %* set the variable attributes, but do not read any records ;
-   if 0 then set &data &options;
-   %end;
+  %if (&data ne ) %then %do;
+  %* set the variable attributes, but do not read any records ;
+  if 0 then set &data &options;
+  %end;
 
-   %* declare the hash object ;
-   declare hash &hn (
-      %if (&data ne ) %then %do;
-      dataset: "&data &options" ,
-      %end;
-      hashexp: 16
-      , ordered: "&ordered"
-      %if (&replace eq R or &replace eq REPLACE) %then %do;
-      , duplicate: "R"
-      %end;
-      %else
-      %if (&replace eq E or &replace eq ERROR) %then %do;
-      , duplicate: "E"
-      %end;
-      %if (&multidata) %then %do;
-      , multidata: "Y"
-      %end;
-   );
+  %* declare the hash object ;
+  declare hash &hn (
+    %if (&data ne ) %then %do;
+    dataset: "&data &options" ,
+    %end;
+    hashexp: 16
+    , ordered: "&ordered"
+    %if (&replace eq R or &replace eq REPLACE) %then %do;
+    , duplicate: "R"
+    %end;
+    %else
+    %if (&replace eq E or &replace eq ERROR) %then %do;
+    , duplicate: "E"
+    %end;
+    %if (&multidata) %then %do;
+    , multidata: "Y"
+    %end;
+  );
 
-   %* define keys and satellite variables ;
-   &hn..defineKey(%seplist(&keys,nest=QQ));
+  %* define keys and satellite variables ;
+  &hn..defineKey(%seplist(&keys,nest=QQ));
 
-   %if (%upcase(&vars) eq _ALL_) %then %do;
-      &hn..defineData(ALL: "YES");
-   %end;
-   %else
-   %if (&vars ne ) %then %do;
-      &hn..defineData(%seplist(&vars,nest=QQ));
-   %end;
+  %if (%upcase(&vars) eq _ALL_) %then %do;
+    &hn..defineData(ALL: "YES");
+  %end;
+  %else
+  %if (&vars ne ) %then %do;
+    &hn..defineData(%seplist(&vars,nest=QQ));
+  %end;
 
-   %* end hash declaration ;
-   &hn..defineDone();
+  %* end hash declaration ;
+  &hn..defineDone();
 end;
 
 %* explicitly set hash variables to missing so they are not ;

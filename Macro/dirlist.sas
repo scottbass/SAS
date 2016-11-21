@@ -14,28 +14,10 @@ Program Version #       : 1.0
 
 =======================================================================
 
-Copyright (c) 2016 Scott Bass
+Copyright (c) 2016 Scott Bass (sas_l_739@yahoo.com.au)
 
-https://github.com/scottbass/SAS/tree/master/Macro
-
-Permission is hereby granted, free of charge, to any person obtaining a
-copy of this software and associated documentation files (the
-"Software"), to deal in the Software without restriction, including
-without limitation the rights to use, copy, modify, merge, publish,
-distribute, sublicense, and/or sell copies of the Software, and to
-permit persons to whom the Software is furnished to do so, subject to
-the following conditions:
-
-The above copyright notice and this permission notice shall be included
-in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+This code is licensed under the Unlicense license.
+For more information, please refer to http://unlicense.org/UNLICENSE.
 
 =======================================================================
 
@@ -48,28 +30,28 @@ Usage:
 
 %dirlist(dir=C:\Windows\System32)
 
-List files and directories in C:\Windows\System32,
+List files and directories in C:\Windows\System32, 
 creating the default dataset work.dirlist.
 
 =======================================================================
 
 %dirlist(dir=C:\Windows\System32, data=sasuser.directory)
 
-List files and directories in C:\Windows\System32,
+List files and directories in C:\Windows\System32, 
 creating the sasuser.directory dataset.
 
 =======================================================================
 
 %dirlist(dir=C:\Windows\System32, type=f)
 
-List files (only) in C:\Windows\System32,
+List files (only) in C:\Windows\System32, 
 creating the default dataset.
 
 =======================================================================
 
 %dirlist(dir=C:\Windows\System32, type=d)
 
-List directories (only) in C:\Windows\System32,
+List directories (only) in C:\Windows\System32, 
 creating the default dataset.
 
 =======================================================================
@@ -119,7 +101,7 @@ The TYPE parameter is just a specialized implementation of a FILTER.
 Note that SAS does not return datetime information for a directory,
 even though Windows explorer and the dir command do.
 
-This macro was developed under Windows.
+This macro was developed under Windows.  
 To see the file options SAS returns for your o/s, run this code,
 then modify this macro as required:
 
@@ -158,7 +140,7 @@ Creates a SAS dataset containing a directory list of external files.
 %let macro = &sysmacroname;
 
 %* check input parameters ;
-%parmv(DIR,          _req=1,_words=1,_case=N)
+%parmv(DIR,          _req=1,_words=1,_case=N) 
 %parmv(DATA,         _req=1,_words=0,_case=N)
 %parmv(TYPE,         _req=0,_words=0,_case=U,_val=F D)
 
@@ -180,7 +162,7 @@ Creates a SAS dataset containing a directory list of external files.
 %let temp=1;
 %if (%superq(type) ne )   %then %let temp=%str(&temp and type="&type");
 %if (%superq(filter) ne ) %then %let temp=%str(&temp and &filter);
-
+  
 data &data;
    length fullname $260 pathname $200 filename $100 basename $100 ext $10;
    length type $1 recfm $3 lrecl filesize createtime lastmodified 8;
@@ -192,7 +174,7 @@ data &data;
       put "ERR" "OR: Unable to open &dir as a directory.";
       stop;
    end;
-
+   
    do i=1 to dnum(did);
       call missing(of fullname pathname filename basename ext type recfm lrecl filesize createtime lastmodified);
 
@@ -216,7 +198,7 @@ data &data;
       end;
       else do;
          basename       = filename;
-      end;
+      end;                  
       fid=fclose(fid);
       if &temp then output;
    end;

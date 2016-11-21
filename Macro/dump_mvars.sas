@@ -13,28 +13,10 @@ Program Version #       : 1.0
 
 =======================================================================
 
-Copyright (c) 2016 Scott Bass
+Copyright (c) 2016 Scott Bass (sas_l_739@yahoo.com.au)
 
-https://github.com/scottbass/SAS/tree/master/Macro
-
-Permission is hereby granted, free of charge, to any person obtaining a
-copy of this software and associated documentation files (the
-"Software"), to deal in the Software without restriction, including
-without limitation the rights to use, copy, modify, merge, publish,
-distribute, sublicense, and/or sell copies of the Software, and to
-permit persons to whom the Software is furnished to do so, subject to
-the following conditions:
-
-The above copyright notice and this permission notice shall be included
-in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+This code is licensed under the Unlicense license.
+For more information, please refer to http://unlicense.org/UNLICENSE.
 
 =======================================================================
 
@@ -104,16 +86,16 @@ in the order returned by the dictionary table.
 =======================================================================
 
 data _null_;
-   a="Test of 'matched' quotes";
-   b='Test of "matched" quotes';
-   c="Test of 'mismatched quotes";
-   d='Test of "mismatched quotes';
-   call symputx("a", a, "G");
-   call symputx("b", b, "G");
-   call symputx("c", c, "G");
-   call symputx("d", d, "G");
-   call symputx("e", '&b', "G");
-   call symputx("f", '&c', "G");
+  a="Test of 'matched' quotes";
+  b='Test of "matched" quotes';
+  c="Test of 'mismatched quotes";
+  d='Test of "mismatched quotes';
+  call symputx("a", a, "G");
+  call symputx("b", b, "G");
+  call symputx("c", c, "G");
+  call symputx("d", d, "G");
+  call symputx("e", '&b', "G");
+  call symputx("f", '&c', "G");
 run;
 
 * this works ;
@@ -171,29 +153,29 @@ Dumps macro variables to the log.
 %* In all three scenarios, we need to use the dictionary tables to reformat the MVARS list ;
 
 %if ( (%upcase(&mvars) eq _ALL_) or (&scope ne ) or (&sort eq 1) ) %then %do;
-   proc sql noprint;
-      select
-         name into :mvars separated by " "
-      from
-         dictionary.macros
-      where
+  proc sql noprint;
+    select
+      name into :mvars separated by " "
+    from
+      dictionary.macros
+    where
 
-      %if (%upcase(&mvars) eq _ALL_) %then %do;
-         1
-      %end;
-      %else %do;
-         upcase(name) in (%upcase(%seplist(&mvars,nest=QQ)))
-      %end;
+    %if (%upcase(&mvars) eq _ALL_) %then %do;
+      1
+    %end;
+    %else %do;
+      upcase(name) in (%upcase(%seplist(&mvars,nest=QQ)))
+    %end;
 
-      %if (&scope ne ) %then %do;
-         and scope in (%upcase(%seplist(&scope,nest=QQ)))
-      %end;
+    %if (&scope ne ) %then %do;
+      and scope in (%upcase(%seplist(&scope,nest=QQ)))
+    %end;
 
-      %if (&sort eq 1) %then %do;
-         order by name
-      %end;
-      ;
-   quit;
+    %if (&sort eq 1) %then %do;
+      order by name
+    %end;
+    ;
+  quit;
 %end;
 
 %* now print the mvars list to the log ;

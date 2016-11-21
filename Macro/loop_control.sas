@@ -14,28 +14,10 @@ Program Version #       : 1.0
 
 =======================================================================
 
-Copyright (c) 2016 Scott Bass
+Copyright (c) 2016 Scott Bass (sas_l_739@yahoo.com.au)
 
-https://github.com/scottbass/SAS/tree/master/Macro
-
-Permission is hereby granted, free of charge, to any person obtaining a
-copy of this software and associated documentation files (the
-"Software"), to deal in the Software without restriction, including
-without limitation the rights to use, copy, modify, merge, publish,
-distribute, sublicense, and/or sell copies of the Software, and to
-permit persons to whom the Software is furnished to do so, subject to
-the following conditions:
-
-The above copyright notice and this permission notice shall be included
-in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+This code is licensed under the Unlicense license.
+For more information, please refer to http://unlicense.org/UNLICENSE.
 
 =======================================================================
 
@@ -123,9 +105,9 @@ run;
          PRINTALLTYPES
          CHARTYPE
          NOLABELS
-            MEAN
-            MIN
-            MAX
+            MEAN 
+            MIN 
+            MAX 
             NONOBS
          ;
          VAR &vars;
@@ -136,13 +118,13 @@ run;
       PROC FREQ DATA=&data ORDER=INTERNAL;
          TABLES &vars /  SCORES=TABLE;
       RUN;
-   %end;
+   %end;   
    %else
    %if (&proc eq PRINT) %then %do;
       PROC PRINT DATA=&data;
          var &vars;
       RUN;
-   %end;
+   %end;   
 %mend;
 %loop_control(control=metadata)
 
@@ -161,25 +143,25 @@ The child macro "%code" must be created at run time before calling
 this macro.
 
 A local macro variable will be created whose name matches the name
-of every variable in the control dataset.  The child macro is
+of every variable in the control dataset.  The child macro is 
 responsible for referencing the macro variables by the correct name.
 
 The child macro will be called for each logical observation that is
 read from the control dataset.
 
-There is no need to globalize any of the macro variables, since the
-names are "reused" during each iteration.  If you REALLY need a
-"macro array" of macro variables (i.e. MVAR1, MVAR2, MVAR3, etc),
-you should use a different approach, rather than trying to force
+There is no need to globalize any of the macro variables, since the 
+names are "reused" during each iteration.  If you REALLY need a 
+"macro array" of macro variables (i.e. MVAR1, MVAR2, MVAR3, etc), 
+you should use a different approach, rather than trying to force 
 this macro to do this for you.
 
 ---------------------------------------------------------------------*/
 
 %macro loop_control
 /*---------------------------------------------------------------------
-A "wrapper" macro to execute code over a list of items defined in a
-control table
----------------------------------------------------------------------*/
+A "wrapper" macro to execute code over a list of items defined in a 
+control table 
+---------------------------------------------------------------------*/ 
 (CONTROL=      /* Control table defining the data used by the child  */
                /* macro (REQ).                                       */
 ,MNAME=code    /* Macro name (REQ).  Default is "%code"              */
