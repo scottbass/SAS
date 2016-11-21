@@ -16,7 +16,14 @@ Program Version #       : 1.0
 
 =======================================================================
 
-Modification History    : 
+Copyright (c) 2016 Scott Bass (sas_l_739@yahoo.com.au)
+
+This code is licensed under the Unlicense license.
+For more information, please refer to http://unlicense.org/UNLICENSE.
+
+=======================================================================
+
+Modification History    : Original version
 
 =====================================================================*/
 
@@ -86,12 +93,12 @@ before invoking the saved file in batch.
 Submits the current SAS DMS editor session in batch mode.
 ---------------------------------------------------------------------*/
 (FILE          /* File to submit (Opt).                              */
-               /* If blank, the file will be set to                  */
-               /* %sysget(SAS_EXECFILEPATH)                          */
+                      /* If blank, the file will be set to                  */
+                      /* %sysget(SAS_EXECFILEPATH)                          */
 ,CONFIG=       /* Default name of config file (Opt).                 */
-               /* If blank, it is set to config_batch.cfg.           */
-               /* If specified, a full path to the desired config    */
-               /* file should be specified.                          */
+                      /* If blank, it is set to config_batch.cfg.           */
+                      /* If specified, a full path to the desired config    */
+                      /* file should be specified.                          */
 );
 
 %* compile sub-macro ;
@@ -105,9 +112,9 @@ Submits the current SAS DMS editor session in batch mode.
 %let i=1;
 %let mvar=%scan(&mvars,&i);
 %do %while (&mvar ne );
-   %put %sysfunc(putc(&mvar,$12.)) = %unquote(&&&mvar);
-   %let i=%eval(&i+1);
-   %let mvar=%scan(&mvars,&i);
+    %put %sysfunc(putc(&mvar,$12.)) = %unquote(&&&mvar);
+    %let i=%eval(&i+1);
+    %let mvar=%scan(&mvars,&i);
 %end;
 
 %put &line;
@@ -133,11 +140,11 @@ Submits the current SAS DMS editor session in batch mode.
 %* if path is not found then the program is likely in a non-standard location ;
 %* set the path to the directory containing the current program ;
 %if (&path eq ) %then %do;
-   %let pos=%sysfunc(find(&file,\,i,-9999));
-   %if (&pos) %then %let path=%substr(&file,1,&pos);
-   %let basename=%scan(%substr(&file,&pos+1),-2,.);
-   %let log=&path.&basename..log;
-   %let lst=&path.&basename..lst;
+    %let pos=%sysfunc(find(&file,\,i,-9999));
+    %if (&pos) %then %let path=%substr(&file,1,&pos);
+    %let basename=%scan(%substr(&file,&pos+1),-2,.);
+    %let log=&path.&basename..log;
+    %let lst=&path.&basename..lst;
 %end;
 
 %* if config is missing set to &path.config_batch.cfg ;
@@ -151,12 +158,12 @@ dm "file";
 %let quotelenmax=%sysfunc(getoption(quotelenmax,keyword));
 options noquotelenmax;
 %if (%sysfunc(fileexist(&config)) and (%length(&log.&lst) eq 0)) %then %do;
-   %dump_mvars(sas file path config)
-   systask command " ""&sas"" -config ""&config"" -sysin ""&file"" " nowait;
+    %dump_mvars(sas file path config)
+    systask command " ""&sas"" -config ""&config"" -sysin ""&file"" " nowait;
 %end;
 %else %do;
-   %dump_mvars(sas file path log lst)
-   systask command " ""&sas"" -sysin ""&file"" -log ""&log"" -print ""&lst"" -sasinitialfolder ""&path"" " nowait;
+    %dump_mvars(sas file path log lst)
+    systask command " ""&sas"" -sysin ""&file"" -log ""&log"" -print ""&lst"" -sasinitialfolder ""&path"" " nowait;
 %end;
 options &quotelenmax;
 
