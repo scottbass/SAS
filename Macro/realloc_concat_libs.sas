@@ -1,5 +1,5 @@
 /*=====================================================================
-Program Name            : Realloc_Concat_Libs.sas
+Program Name            : realloc_concat_libs.sas
 Purpose                 : Reallocate concatenated libraries so that all
                           levels > 1 are allocated as readonly
 SAS Version             : SAS 9.3
@@ -14,7 +14,14 @@ Program Version #       : 1.0
 
 =======================================================================
 
-Modification History    : 
+Copyright (c) 2016 Scott Bass (sas_l_739@yahoo.com.au)
+
+This code is licensed under the Unlicense license.
+For more information, please refer to http://unlicense.org/UNLICENSE.
+
+=======================================================================
+
+Modification History    : Original version
 
 =====================================================================*/
 
