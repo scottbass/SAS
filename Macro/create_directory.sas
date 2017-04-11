@@ -45,8 +45,7 @@ options nodlcreatedir;  * make sure it works even if the option is initially off
 
 Create the directory path dir1/Dir2/DIR3 and dirA\DirB/DIRC.
 
-Both invocations will work under Windows.
-Only the first invocation will work under *nix.
+Both invocations will work under both Windows and *nix.
 
 -----------------------------------------------------------------------
 Notes:
