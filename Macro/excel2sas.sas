@@ -40,6 +40,13 @@ Change/reason           : Changed default engine to EXCEL2007 on Windows
                           (should probably add an ENGINE parameter)
 Program Version #       : 1.3
 
+Programmer              : Scott Bass
+Date                    : 07JUL2017
+Change/reason           : Changed SELECT and EXCLUDE parameters to use  
+                          Perl Regular Expression syntax rather than 
+                          SQL syntax (i.e. like FOO%)
+Program Version #       : 1.3
+
 =====================================================================*/
 
 /*---------------------------------------------------------------------
@@ -62,7 +69,7 @@ Usage:
       saving output datasets to work,
       naming output datasets based on worksheet names
 
-%excel2sas(file=&file,select=Table%,lib=mylib)
+%excel2sas(file=&file,select=(^Table.*),lib=mylib)
    Import worksheets whose names begin with "Table",
       saving output datasets to mylib,
 
@@ -104,9 +111,23 @@ the same delimiter is used for the OUT= parameter.  SAS Name Literals
 This macro may return incorrect results if the source workbook contains
 sheet names with a dollar sign ($) in the worksheet name.
 
-Use the SQL wildcard "%" to search for multiple worksheets,
-eg. "Table%" or "%Notes".  See PROC SQL documentation (LIKE condition)
-for more details.
+Use Perl Regular Expression (PRX) syntax to search for multiple worksheets.
+Enclose the PRX within parentheses to indicate that it is a PRX instead
+of a worksheet name.
+
+Examples:  
+(^Table):  Worksheet names beginning with "Table"
+(Notes$):  Worksheet names ending with "Notes"
+(^A):      Worksheet names beginning with "A"
+(^FOO$|^BAR$|^BLAH$):  Worksheet names that are exactly FOO or BAR or BLAH
+
+By default a PRX will match any part of the worksheet name,
+i.e. FOO will match FOO, FOOBAR, BARFOO, WHOOPDEFOO, etc.
+
+Use metacharacters such as ^ (beginning of line) or $ (end of line)
+to anchor the text.
+
+See the Perl Regular Expression documentation for more details.
 
 ---------------------------------------------------------------------*/
 
@@ -250,7 +271,7 @@ Windows processing...
    into a working dataset for later processing.
    ----------------------------------------------------------------------;
    %if (%superq(select) ne ) %then %do;
-      %if (not %index(%superq(select),%str(%%))) %then %do;
+      %if (not %index(%superq(select),%str(%())) %then %do;
          data _select_;
             length sort 8 memname $32;
             do memname=%seplist(%superq(select),indlm=^,nest=QQ);
@@ -262,7 +283,7 @@ Windows processing...
    %end;
 
    %if (%superq(exclude) ne ) %then %do;
-      %if (not %index(%superq(exclude),%str(%%))) %then %do;
+      %if (not %index(%superq(exclude),%str(%())) %then %do;
          data _exclude_;
             length sort 8 memname $32;
             do memname=%seplist(%superq(exclude),indlm=^,nest=QQ);
@@ -273,7 +294,7 @@ Windows processing...
       %end;
    %end;
 
-   %* no need to check for SQL wildcard on OUT parameter ;
+   %* no need to check for PRX wildcard on OUT parameter ;
    %if (%superq(out) ne ) %then %do;
       data _out_;
          length sort 8 memname $32;
@@ -320,21 +341,21 @@ Windows processing...
 
          %* an inner join will select those items in the _select_ table ;
          %if (%superq(select) ne ) %then %do;
-            %if (not %index(%superq(select),%str(%%))) %then %do;
+            %if (not %index(%superq(select),%str(%())) %then %do;
                inner join
                   _select_ s
                on
                   upcase(w.memname)=upcase(s.memname)
             %end;
             %else %do;
-               %sysfunc(ifc(&_flag=0,where,and)) upcase(w.memname) like (%upcase(%seplist(%superq(select),indlm=^,nest=QQ)))
+               %sysfunc(ifc(&_flag=0,where,and)) prxmatch("/&select/io",strip(w.memname))
                %let _flag=1;
             %end;
          %end;
 
          %* use a left join and appropriate where clause to implement exclude functionality ;
          %if (%superq(exclude) ne ) %then %do;
-            %if (not %index(%superq(exclude),%str(%%))) %then %do;
+            %if (not %index(%superq(exclude),%str(%())) %then %do;
                left join
                   _exclude_ e
                on
@@ -343,13 +364,13 @@ Windows processing...
                   e.memname is null
             %end;
             %else %do;
-               %sysfunc(ifc(&_flag=0,where,and)) upcase(w.memname) not like (%upcase(%seplist(%superq(exclude),indlm=^,nest=QQ)))
+               %sysfunc(ifc(&_flag=0,where,and)) not prxmatch("/&exclude/io",strip(w.memname))
             %end;
          %end;
 
          %* keep the worksheets in the sorted order as specified in SELECT ;
          %if (%superq(select) ne ) %then %do;
-            %if (not %index(%superq(select),%str(%%))) %then %do;
+            %if (not %index(%superq(select),%str(%())) %then %do;
                order by
                   s.sort
             %end;
@@ -414,7 +435,6 @@ UNIX processing...
 
    %if (&outdsn eq ) %then %do;
       %let outdsn=%sysfunc(translate(&word,%str(______),%str( ,#!-%%)));
-      %let outdsn=&word;
       %if (&lib ne ) %then %let outdsn=&lib..&outdsn;
    %end;
 
