@@ -8,7 +8,7 @@ SAS Version             : SAS 9.3
 Input Data              : N/A
 Output Data             : N/A
 
-Macros Called           : parmv
+Macros Called           : parmv, dump_mvars
 
 Originally Written by   : Scott Bass
 Date                    : 22Jun2018
@@ -34,7 +34,7 @@ Usage:
 
 libname FOO ODBC 
    NOPROMPT="Driver={SQL Server Native Client 10.0};
-   Server=SVDCMHPRRLSQD01;
+   Server=MYSERVER;
    Database=master;
    Trusted_Connection=yes;"
 ;
@@ -42,56 +42,60 @@ libname FOO ODBC
 %libname_attr_sqlsvr(FOO);
 
 * the macro prints these, but show that they are global macro variables ;
-%put &=server &=dbname &=schema &=schema2;
+%dump_mvars(server dbname schema schema2)
 
 * &schema is the schema as specified by the libname allocation ;
-* &schema2 is the default schema for this connection to SQL Server ;
+* &schema2 is the default schema for this connection to SQL Server and may be blank ;
 
 =======================================================================
 
 * specify a schema ;
 libname FOO ODBC 
    NOPROMPT="Driver={SQL Server Native Client 10.0};
-   Server=SVDCMHPRRLSQD01;
-   Database=RLCS_dev;
+   Server=MYSERVER;
+   Database=MYDB;
    Trusted_Connection=yes;"
-   bulkload=yes schema=content
+   bulkload=yes schema=myschema
 ;
 
+=======================================================================
+
+* no schema specified ;
 libname BAR ODBC 
    NOPROMPT="Driver={SQL Server Native Client 10.0};
-   Server=SVDCMHPRRLSQD01;
+   Server=MYSERVER;
    Database=master;
    Trusted_Connection=yes;"
 ;
 
+* prefix the macro variables with the libref ;
 %libname_attr_sqlsvr(FOO,prefix=yes);
 %libname_attr_sqlsvr(BAR,prefix=yes);
 
-%put &=foo_server &=foo_dbname &=foo_schema &=foo_schema2;
-%put &=bar_server &=bar_dbname &=bar_schema &=foo_schema2;
+%dump_mvars(foo_server foo_dbname foo_schema foo_schema2)
+%dump_mvars(bar_server bar_dbname bar_schema foo_schema2)
 
 =======================================================================
 
 * demonstrate use in explicit pass-through ;
 libname FOO ODBC 
    NOPROMPT="Driver={SQL Server Native Client 10.0};
-   Server=SVDCMHPRRLSQD01;
-   Database=RLCS_dev;
+   Server=MYSERVER;
+   Database=MYDB;
    Trusted_Connection=yes;"
-   bulkload=yes schema=content
+   bulkload=yes schema=myschema
 ;
 
 libname BAR ODBC 
    NOPROMPT="Driver={SQL Server Native Client 10.0};
-   Server=SVDCMHDVSDWSQD1;
+   Server=MYSERVER;
    Database=master;
    Trusted_Connection=yes;"
    schema=sys
 ;
 
 %libname_attr_sqlsvr(FOO,prefix=yes);  * prefix=yes, so FOO_dbname, etc. ;
-%libname_attr_sqlsvr(BAR,prefix=no);   * prefix=no, so dbname, schema, etc. ;
+%libname_attr_sqlsvr(BAR,prefix=no);   * prefix=no,  so dbname, schema, etc. ;
 
 proc sql;
    connect using foo;
@@ -113,23 +117,23 @@ The main purpose of this macro is to retrieve metadata (macro variables)
 about a given ODBC libname, knowing nothing more than the libname.
 
 This is especially useful if the library is allocated in an external
-program, or via the metadata engine.
+program (i.e. %include file), or via the metadata engine.
 
 The purpose of the metadata is to make explicit pass-through code
 easier to maintain.  The idea is to allocate a library for every 
 server, database, and schema you need to access, even if the data could
 be accessed via a single connection with two-,three-, or four-level
-(i.e. linked server) names.
+(i.e. linked server) names via explicit pass-through.
 
 This approach gives you visibility of all the relevant tables in the
-SAS libraries, makes it easy to write metadata-driven code (i.e.
-using macro variables), and makes it easy to maintain your code if
-server or database names change in the future.
+SAS libraries, makes it easy to write metadata-driven code 
+(i.e. using macro variables), and makes it easy to maintain your code 
+if server or database names change in the future.
 
-This macro must be called outside data step or PROC context, i.e. in
-"open code", but it generally only needs to be called once.
+This macro must be called outside data step or PROC context, 
+i.e. in "open code", but it usually only needs to be called once.
 
-The the prefix=yes parameter is specified, the macro variables returned
+If the prefix=yes parameter is specified, the macro variables returned
 are <libref>_server, <libref>_dbname, and <libref>_schema.
 Otherwise server, dbname, and schema are returned.
 
@@ -143,8 +147,8 @@ approach:
 %libname_attr_sqlsvr(BAR,prefix=yes);
 %let lib2_server=&server;%let lib2_dbname=&dbname;%let lib2_schema=&schema;
 
-Since the macro variable name prefix is now static, it will not change
-if the libname changes in the future.
+Since the macro variable name prefix is now static (i.e. hardcoded as
+lib1_* or lib2_*), it will not change if the libname changes in the future.
 
 ---------------------------------------------------------------------*/
 
@@ -234,8 +238,7 @@ quit;
    %let &libref._schema=&_schema;
    %let &libref._schema2=&_schema2;
 
-   %* cannot use the &=mvarname syntax ;
-   %*put %upcase(&libref._server)=&&&libref._server %upcase(&libref._dbname)=&&&libref._dbname %upcase(&libref._schema)=&&&libref._schema %upcase(&libref._schema2)=&&&libref._schema2;
+   %dump_mvars(&libref._server &libref_.dbname &libref._schema &libref._schema2)
 %end;
 %else %do;
    %global server dbname schema schema2;
@@ -244,7 +247,7 @@ quit;
    %let schema=&_schema;
    %let schema2=&_schema2;
 
-   %*put &=server &=dbname &=schema &=schema2;
+   %dump_mvars(server dbname schema schema2)
 %end;
 
 %quit:
