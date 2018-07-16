@@ -49,7 +49,7 @@ libname FOO ODBC
 
 =======================================================================
 
-* specify a schema ;
+* explicit schema specified ;
 libname FOO ODBC 
    NOPROMPT="Driver={SQL Server Native Client 10.0};
    Server=MYSERVER;
@@ -57,8 +57,6 @@ libname FOO ODBC
    Trusted_Connection=yes;"
    bulkload=yes schema=myschema
 ;
-
-=======================================================================
 
 * no schema specified ;
 libname BAR ODBC 
@@ -116,26 +114,27 @@ Notes:
 The main purpose of this macro is to retrieve metadata (macro variables)
 about a given ODBC libname, knowing nothing more than the libname.
 
-This is especially useful if the library is allocated in an external
+This is especially useful if the library is allocated via an external
 program (i.e. %include file), or via the metadata engine.
 
 The purpose of the metadata is to make explicit pass-through code
-easier to maintain.  The idea is to allocate a library for every 
+easier to maintain.  The idea is you allocate a library for every 
 server, database, and schema you need to access, even if the data could
 be accessed via a single connection with two-,three-, or four-level
 (i.e. linked server) names via explicit pass-through.
 
 This approach gives you visibility of all the relevant tables in the
-SAS libraries, makes it easy to write metadata-driven code 
-(i.e. using macro variables), and makes it easy to maintain your code 
-if server or database names change in the future.
+SAS libraries (i.e. via Server List -> Libraries), 
+makes it easy to write metadata-driven code (i.e. using macro variables), 
+and makes it easy to maintain your code if server, database, or schema
+names change in the future.
 
 This macro must be called outside data step or PROC context, 
 i.e. in "open code", but it usually only needs to be called once.
 
 If the prefix=yes parameter is specified, the macro variables returned
-are <libref>_server, <libref>_dbname, and <libref>_schema.
-Otherwise server, dbname, and schema are returned.
+are <libref>_server, <libref>_dbname, <libref>_schema, and <libref>_schema2.
+Otherwise server, dbname, schema, and schema2 are returned.
 
 Keep in mind this WOULD cause a code maintenance issue if the libnames
 ever changed in the future.  If this is an issue, you can use this
@@ -238,7 +237,7 @@ quit;
    %let &libref._schema=&_schema;
    %let &libref._schema2=&_schema2;
 
-   %dump_mvars(&libref._server &libref_.dbname &libref._schema &libref._schema2)
+   %dump_mvars(&libref._server &libref._dbname &libref._schema &libref._schema2)
 %end;
 %else %do;
    %global server dbname schema schema2;
