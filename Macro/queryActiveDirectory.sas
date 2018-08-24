@@ -64,7 +64,7 @@ run;
 
 * return all user information for a particular user ;
 %queryActiveDirectory(
-  filter=(&(samaccountname=rbowden)(objectclass=user))
+  filter=(&(samaccountname=sbass)(objectclass=user))
   ,debug=I
 );
 
@@ -77,7 +77,7 @@ run;
 
 * return full name, first name, last name, and email address for a particular user ;
 %queryActiveDirectory(
-  filter=(samaccountname=rbowden)
+  filter=(samaccountname=sbass)
   ,attrs=cn givenName sn mail
   ,debug=F
 );
@@ -90,7 +90,7 @@ run;
 * return full name of all users in the Sydney branch of the Active Directory tree ;
 * whose first names begin with "S" ;
 %queryActiveDirectory(
-  base=%str(OU=Sydney,OU=BUPAUsers,DC=internal,DC=bupa,DC=com,DC=au)
+  base=%str(OU=Sydney,OU=AcmeUsers,DC=internal,DC=acme,DC=com,DC=au)
   ,filter=(givenName=S*)
   ,attrs=cn
 );
@@ -105,7 +105,7 @@ run;
 * whose first or last names contain "will" ;
 * (queries are case-insensitive by default) ;
 %queryActiveDirectory(
-  base=%str(OU=Melbourne,OU=BUPAUsers,DC=internal,DC=bupa,DC=com,DC=au)
+  base=%str(OU=Melbourne,OU=AcmeUsers,DC=internal,DC=acme,DC=com,DC=au)
   ,filter=(|(givenName=*will*)(sn=*will*))
   ,attrs=cn
 );
@@ -139,10 +139,10 @@ run;
 =======================================================================
 
 * example of post processing the data in SAS ;
-* return all users with Rob Ashmore as their manager ;
+* return all users with Joe Bloggs as their manager ;
 %queryActiveDirectory(
-  base=%str(OU=Sydney,OU=BUPAUsers,DC=internal,DC=bupa,DC=com,DC=au)
-  ,filter=(manager=CN=Rob Ashmore,OU=Sydney,OU=BUPAUsers,DC=internal,DC=bupa,DC=com,DC=au)
+  base=%str(OU=Sydney,OU=AcmeUsers,DC=internal,DC=acme,DC=com,DC=au)
+  ,filter=(manager=CN=Joe Bloggs,OU=Sydney,OU=AcmeUsers,DC=internal,DC=acme,DC=com,DC=au)
   ,attrs=givenName sn streetAddress l st postalCode mail telephoneNumber mobile title
 );
 
@@ -171,7 +171,7 @@ run;
 * if you know the attribute is a multi-valued attribute, ;
 * you would probably want to return the data as a delimited list ;
 %queryActiveDirectory(
-  base=%str(OU=Sydney,OU=BUPAUsers,DC=internal,DC=bupa,DC=com,DC=au)
+  base=%str(OU=Sydney,OU=AcmeUsers,DC=internal,DC=acme,DC=com,DC=au)
   ,filter=(cn=Scott Bass)
 );
 proc sql noprint;
@@ -239,18 +239,18 @@ http://support.sas.com/rnd/itech/doc9/dev_guide/ldap/ldapintf/ldap_search.html.
 /*---------------------------------------------------------------------
 Execute an LDAP query against Active Directory
 ---------------------------------------------------------------------*/
-(SERVER=MPLINF001.medibank.local
+(SERVER=ACTIVEDIRECTORY001.acme.local
                /* Server address of Active Directory (REQ).          */
 ,PORT=389
                /* Server port of Active Directory (REQ).             */
-,BASE=%str(DC=medibank,DC=local)
+,BASE=%str(DC=acme,DC=local)
                /* Base DN (Distinguished Name) from which to start   */
                /* the LDAP search (REQ).                             */
                /* The default Base DN used by Active Directory is    */
                /* DC=medibank,DC=local                               */
                /* which is analogous to the root directory in a      */
                /* file system or Windows drive.                      */
-,BINDDN=%str(CN=&LDAPName,OU=Staff,OU=Medibank PHI,OU=MPL Staff,DC=medibank,DC=local)
+,BINDDN=%str(CN=&LDAPName,OU=Staff,OU=Acme,OU=Acme Staff,DC=acme,DC=local)
                /* Bind DN used to connect to Active Directory (REQ). */
                /* Our Active Directory is not configured for         */
                /* anonymous binds, so a valid Bind DN and password   */
