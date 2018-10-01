@@ -27,14 +27,14 @@ Programmer              : YOUR FULL NAME
 Date                    : DDMONYYYY
 Change/reason           : SUMMARY OF CODE CHANGE.
                           ADD COMMENTS IN THE CODE ITSELF
-                          (INCLUDING NAME AND DATE) FOR ADDITIONAL DETAILS)
+                          (INCLUDING NAME AND DATE) FOR ADDITIONAL DETAILS
 Program Version #       : 1.1
 
 Programmer              : YOUR FULL NAME
 Date                    : DDMONYYYY
 Change/reason           : SUMMARY OF CODE CHANGE.
                           ADD COMMENTS IN THE CODE ITSELF
-                          (INCLUDING NAME AND DATE) FOR ADDITIONAL DETAILS)
+                          (INCLUDING NAME AND DATE) FOR ADDITIONAL DETAILS
 Program Version #       : 1.2
 
 VERSION 1.0 (ORIGINAL VERSION):
