@@ -9,7 +9,7 @@ Macros Called           : LIST ANY UTILITY MACROS CALLED BY THIS MACRO
                           SO THEY CAN BE ADDED TO THE SASAUTOS LIBRARY AS WELL
 
 Originally Written by   : YOUR FULL NAME (NOT INITIALS - MAKE IT EASY TO FIND YOU LATER)
-Date                    : TODAYs DATE IN DDMONYYYY FORMAT (INTERNATIONLALLY UNAMBIGUOUS DATE FORMAT)
+Date                    : TODAYs DATE IN DDMONYYYY FORMAT (INTERNATIONALLY UNAMBIGUOUS DATE FORMAT)
 Program Version #       : 1.0
 
 =======================================================================
