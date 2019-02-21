@@ -129,9 +129,7 @@ Allocate a SQL Server library via ODBC
                /* options embedded in this macro.                    */
 ,SERVER=MYSERVER
                /* SQL Server machine name (REQ).                     */
-,PORT=         /* SQL Server machine port (REQ).                     */
-               /* Note: the port number for DOHNSCLDBSASBI is 54491  */
-
+,PORT=         /* SQL Server machine port (Opt).                     */
 );
 
 %local macro parmerr lev env _server;
