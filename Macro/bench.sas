@@ -14,10 +14,17 @@ Program Version #       : 1.0
 
 =======================================================================
 
-Copyright (c) 2016 Scott Bass (sas_l_739@yahoo.com.au)
+Scott Bass (sas_l_739@yahoo.com.au)
 
 This code is licensed under the Unlicense license.
 For more information, please refer to http://unlicense.org/UNLICENSE.
+
+This is free and unencumbered software released into the public domain.
+
+Anyone is free to copy, modify, publish, use, compile, sell, or
+distribute this software, either in source code form or as a compiled
+binary, for any purpose, commercial or non-commercial, and by any
+means.
 
 =======================================================================
 
@@ -130,12 +137,12 @@ Measures elapsed time between successive invocations.
 %parmv(MESSAGE,      _req=0,_words=1,_case=N)
 %parmv(PRINT,        _req=0,_words=0,_case=U,_val=0 1)
 
-%if (&parmerr) %then %goto quit;
+%if (&parmerr) %then %return;
 
 %* if print=Y then data must be specified ;
 %if (&print and &data eq ) %then %do;
-  %parmv(_msg=If PRINT=Y then DATA must be specified)
-  %goto quit;
+   %parmv(_msg=If PRINT=Y then DATA must be specified)
+   %return;
 %end;
 
 %* nested macro for printing ;
@@ -180,7 +187,7 @@ Measures elapsed time between successive invocations.
 %if (&parm eq ELAPSED) %then %do;
    %if (&_start eq ) %then %do;
       %put ERROR:  Benchmarking must be started before elapsed time can be printed.;
-      %goto quit;
+      %return;
    %end;
    %else %do;
       %print(ELAPSED);
@@ -221,41 +228,41 @@ Measures elapsed time between successive invocations.
 %if (&parm eq END) %then %do;
    %if (&_start eq ) %then %do;
       %put ERROR:  Benchmarking must be started before elapsed time can be printed.;
-      %goto quit;
+      %return;
    %end;
    %else %do;
-      %print(END);
+      %print(END)
 
       %* reset benchmarking ;
       %symdel _start _elapsed / nowarn;
 
       %* if PRINT=Y then print default metrics to log ;
       %if (&print) %then %do;
-        %let ls=%sysfunc(getoption(ls));
-        options ls=max;
-        data _null_;
-          set &data end=eof;
-          retain maxlen;
-          maxlen=max(length(strip(message)),maxlen);
-          if eof then call symputx("maxlen",maxlen,"L");
-        run;
-        data _null_;
-          set &data end=eof;
-          file log;
-          if _n_=1 then
-          put
-            @1 "Benchmark Metrics:"
-            /
-            @1 "=================="
-          ;
-          put
-            @1 message $&maxlen..
-            +2 "Elapsed:" elapsed 12.4-R
-            +2 "Total:"   total   12.4-R
-          ;
-          if eof then put "0A0D"x @;
-        run;
-        options ls=&ls;
+         %let ls=%sysfunc(getoption(ls));
+         options ls=max;
+         data _null_;
+            set &data end=eof;
+            retain maxlen;
+            maxlen=max(length(strip(message)),maxlen);
+            if eof then call symputx("maxlen",maxlen,"L");
+         run;
+         data _null_;
+            set &data end=eof;
+            file log;
+            if _n_=1 then
+            put
+               @1 "Benchmark Metrics:"
+               /
+               @1 "=================="
+            ;
+            put
+               @1 message $&maxlen..
+               +2 "Elapsed:" elapsed 12.4-R
+               +2 "Total:"   total   12.4-R
+            ;
+            if eof then put "0A0D"x @;
+         run;
+         options ls=&ls;
       %end;
    %end;
 %end;
@@ -269,9 +276,6 @@ Measures elapsed time between successive invocations.
       %bench(elapsed);
    %end;
 %end;
-
-%quit:
-%* if (&parmerr) %then %abort;
 
 %mend;
 

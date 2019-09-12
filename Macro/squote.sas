@@ -14,10 +14,20 @@ Program Version #       : 1.0
 
 =======================================================================
 
-Copyright (c) 2016 Scott Bass (sas_l_739@yahoo.com.au)
+Scott Bass (sas_l_739@yahoo.com.au)
 
 This code is licensed under the Unlicense license.
 For more information, please refer to http://unlicense.org/UNLICENSE.
+
+This is free and unencumbered software released into the public domain.
+
+Anyone is free to copy, modify, publish, use, compile, sell, or
+distribute this software, either in source code form or as a compiled
+binary, for any purpose, commercial or non-commercial, and by any
+means.
+
+Based on original work by SAS Communities user "Tom".
+See https://communities.sas.com/t5/SAS-Communities-Library/Not-All-Macro-Language-Elements-Are-Supported-by-the-Macro/ta-p/223904
 
 =======================================================================
 
@@ -93,10 +103,6 @@ options symbolgen;
 -----------------------------------------------------------------------
 Notes:
 
-I did not write this macro.  Full attribution goes to "Tom"
-https://communities.sas.com/t5/SAS-Communities-Library/Not-All-Macro-Language-Elements-Are-Supported-by-the-Macro/ta-p/223904
-
-I just wanted to add this useful macro to my macro toolkit.
 
 Compare the functionality of this macro to SAS's %tslit macro.
 Besides the hideous hard-to-remember name of SAS's macro,

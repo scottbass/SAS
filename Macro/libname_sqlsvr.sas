@@ -12,6 +12,20 @@ Originally Written by   : Scott Bass
 Date                    : 12AUG2016
 Program Version #       : 1.0
 
+======================================================================
+
+Scott Bass (sas_l_739@yahoo.com.au)
+
+This code is licensed under the Unlicense license.
+For more information, please refer to http://unlicense.org/UNLICENSE.
+
+This is free and unencumbered software released into the public domain.
+
+Anyone is free to copy, modify, publish, use, compile, sell, or
+distribute this software, either in source code form or as a compiled
+binary, for any purpose, commercial or non-commercial, and by any
+means.
+
 =======================================================================
 
 Modification History    :
@@ -24,45 +38,50 @@ Change/reason           : Changed options parameter to augment the
                           support access=readonly libname option.
 Program Version #       : 1.1
 
+Programmer              : Scott Bass
+Date                    : 19SEP2018
+Change/reason           : Added PRESERVE_NAMES=YES option since we
+                          have now migrated to case-sensitive    
+                          collation on SQL Server.
+Program Version #       : 1.2
+
 =====================================================================*/
 
 /*---------------------------------------------------------------------
 Usage:
 
-%libname_sqlsvr(libref=MyLib)
+%libname_sqlsvr(libref=RLDXHosp)
 
-Allocates the libref MYLIB,
-with defaults of database=<MyLib_&env>, schema=dbo, and options as coded
+Allocates the libref RLDXHosp,
+with defaults of database=<libref>, schema=dbo, and options as coded
 in the macro.
 
 Note that this only works if the database name is a valid SAS libref,
-i.e. less than 8 characters.  If the database name is longer than
-8 characters, an explicit database name must be specified, and of course
-will not match the libref.
+i.e. less than 8 characters.
 
 The macro will select the correct DEV or PROD database based on the
 METAPORT option (i.e. which profile is active in EG)
 
 =======================================================================
 
-%libname_sqlsvr(libref=MyLib, database=MyDB)
+%libname_sqlsvr(libref=mylib, database=RLDXHosp_prod)
 
 Allocates the libref MYLIB,
-with the explicit database=MyDB, schema=dbo, and options as
+with the explicit database=RLDXHosp_prod, schema=dbo, and options as
 coded in the macro.
 
 =======================================================================
 
-%libname_sqlsvr(libref=TMP, database=MyDB, schema=tmp)
+%libname_sqlsvr(libref=TMP, database=RLDXHosp_dev, schema=tmp)
 
 Allocates the libref TMP,
-with the explicit database=MyDB, schema=tmp, and options as
+with the explicit database=RLDXHosp_dev, schema=tmp, and options as
 coded in the macro.
 
 =======================================================================
 
 %libname_sqlsvr(
-   libref=MyLib,
+   libref=RLDXHosp,
    options=
       bulkload=yes
       schema=dbo
@@ -72,8 +91,8 @@ coded in the macro.
       IGNORE_READ_ONLY_COLUMNS=YES
 )
 
-Allocates the libref MyLib,
-with defaults of database=<MyLib_&env>, and additional options that
+Allocates the libref RLDXHosp,
+with defaults of database=<libref>, and additional options that
 augment the internal options coded in the macro.
 
 Note that the explicit options should augment the internal options
@@ -83,11 +102,11 @@ the invocation options should override the internal options since
 
 =======================================================================
 
-%libname_sqlsvr(libref=MyLib, server=MySrv, port=12345)
+%libname_sqlsvr(libref=RLDXHosp, server=FOO, port=12345)
 
-Allocates the libref MyLib,
-with defaults of database=<MyLib>, schema=dbo,
-and server=MySrv, port=12345.
+Allocates the libref RLDXHosp,
+with defaults of database=<libref>, schema=dbo,
+and server=FOO, port=12345.
 
 -----------------------------------------------------------------------
 Notes:
@@ -100,11 +119,8 @@ The macro sets these internal macro variables:
 So, if METAPORT=8561 then lev=Lev1 and env=prod.
 Otherwise, lev=Lev2 and env=dev.
 
-If the DATABASE parameter is blank, then the database parameter will
-default to &libref._&env.  If you use different servers for your 
-respective environments, instead of a single server for both dev and prod,
-it would be a simple edit to this macro to remove the concatenation of 
-&env to the generated (default) database name.
+If the DATABASE parameter is blank, then database parameter will
+default to &libref._&env.
 
 Otherwise, the DATABASE parameter will be used, irrespective of the
 EG environment.  IOW, you can allocate a production database from
@@ -127,9 +143,11 @@ Allocate a SQL Server library via ODBC
 ,OPTIONS=      /* Libref options (Opt).  If specified, the options   */
                /* completely override (as opposed to augment) the    */
                /* options embedded in this macro.                    */
-,SERVER=MYSERVER
+,SERVER=SVDCMHPRRLSQD01
                /* SQL Server machine name (REQ).                     */
-,PORT=         /* SQL Server machine port (Opt).                     */
+,PORT=         /* SQL Server machine port (REQ).                     */
+               /* Note: the port number for DOHNSCLDBSASBI is 54491  */
+
 );
 
 %local macro parmerr lev env _server;
@@ -166,7 +184,7 @@ Allocate a SQL Server library via ODBC
 %*let internal_options = bulkload=yes schema=&schema insertbuff=100 readbuff=1000 direct_exe=delete connection=global;
 %*let internal_options = bulkload=yes schema=&schema direct_exe=delete connection=global;
 %*let internal_options = bulkload=yes schema=&schema connection=global;
-%let internal_options = bulkload=yes schema=&schema dbcommit=100000;
+%let internal_options = schema=&schema bulkload=yes dbcommit=100000 direct_exe=delete preserve_names=yes;
 %*let internal_options = schema=&schema;
 
 %* issue the libname statement ;

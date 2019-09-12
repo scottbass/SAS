@@ -8,7 +8,7 @@ Purpose                 : Checks if alphanumeric MACRO variable input
 SAS Version             : SAS 9.3
 Input Data              : Alphanumeric data contained in a macro
                           variable.
-Output Data             : Return code indicating IsNum, IsInt, 
+Output Data             : Return code indicating IsNum, IsInt,
                           IsNonNeg, or IsPos.
 
 Macros Called           : parmv
@@ -19,10 +19,17 @@ Program Version #       : 1.0
 
 =======================================================================
 
-Copyright (c) 2016 Scott Bass (sas_l_739@yahoo.com.au)
+Scott Bass (sas_l_739@yahoo.com.au)
 
 This code is licensed under the Unlicense license.
 For more information, please refer to http://unlicense.org/UNLICENSE.
+
+This is free and unencumbered software released into the public domain.
+
+Anyone is free to copy, modify, publish, use, compile, sell, or
+distribute this software, either in source code form or as a compiled
+binary, for any purpose, commercial or non-commercial, and by any
+means.
 
 =======================================================================
 
@@ -197,7 +204,7 @@ Checks if alphanumeric (character) input is valid numeric data.
 %let char=&char;
 %* put CHAR=*&char*;  %* for debugging ;
 
-%* check if empty string or missing data ;
+%* use a Perl regex to test for empty string, missing(.), or special missing (._,.A-.Z) data  ;
 %* if YES: ;
 %* if MISSING=N treat as not valid numeric data ;
 %* if MISSING=Y treat as valid numeric data ;

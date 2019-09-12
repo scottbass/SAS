@@ -14,10 +14,21 @@ Program Version #       : 1.0
 
 =======================================================================
 
-Copyright (c) 2016 Scott Bass (sas_l_739@yahoo.com.au)
+Scott Bass (sas_l_739@yahoo.com.au)
 
 This code is licensed under the Unlicense license.
 For more information, please refer to http://unlicense.org/UNLICENSE.
+
+This is free and unencumbered software released into the public domain.
+
+Anyone is free to copy, modify, publish, use, compile, sell, or
+distribute this software, either in source code form or as a compiled
+binary, for any purpose, commercial or non-commercial, and by any
+means.
+
+Approach to deleting .bak files that are created by PROC COPY 
+is derived from original ideas by SAS Communities user "LaurieF".
+See https://communities.sas.com/t5/SAS-Programming/Clean-bak-files-from-PROC-EXPORT/m-p/362602/highlight/true#M85677
 
 =======================================================================
 
@@ -28,7 +39,7 @@ Modification History    : Original version
 /*---------------------------------------------------------------------
 Usage:
 
-%let path=C:\Temp;  %* edit to suit your requirements ;
+%let path=\\sascs\linkage\RL_content_snapshots\Temp;  %* edit to suit your requirements ;
 
 %export_dbms(
    data=sashelp.class

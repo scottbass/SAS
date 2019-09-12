@@ -9,15 +9,21 @@ Macros Called           : LIST ANY UTILITY MACROS CALLED BY THIS MACRO
                           SO THEY CAN BE ADDED TO THE SASAUTOS LIBRARY AS WELL
 
 Originally Written by   : YOUR FULL NAME (NOT INITIALS - MAKE IT EASY TO FIND YOU LATER)
-Date                    : TODAYs DATE IN DDMONYYYY FORMAT (INTERNATIONALLY UNAMBIGUOUS DATE FORMAT)
+Date                    : TODAYs DATE IN DDMONYYYY FORMAT (INTERNATIONLALLY UNAMBIGUOUS DATE FORMAT)
 Program Version #       : 1.0
 
 =======================================================================
-
-Copyright (c) 2016 Scott Bass (sas_l_739@yahoo.com.au)
+Scott Bass (sas_l_739@yahoo.com.au)
 
 This code is licensed under the Unlicense license.
 For more information, please refer to http://unlicense.org/UNLICENSE.
+
+This is free and unencumbered software released into the public domain.
+
+Anyone is free to copy, modify, publish, use, compile, sell, or
+distribute this software, either in source code form or as a compiled
+binary, for any purpose, commercial or non-commercial, and by any
+means.
 
 =======================================================================
 
@@ -27,14 +33,14 @@ Programmer              : YOUR FULL NAME
 Date                    : DDMONYYYY
 Change/reason           : SUMMARY OF CODE CHANGE.
                           ADD COMMENTS IN THE CODE ITSELF
-                          (INCLUDING NAME AND DATE) FOR ADDITIONAL DETAILS
+                          (INCLUDING NAME AND DATE) FOR ADDITIONAL DETAILS)
 Program Version #       : 1.1
 
 Programmer              : YOUR FULL NAME
 Date                    : DDMONYYYY
 Change/reason           : SUMMARY OF CODE CHANGE.
                           ADD COMMENTS IN THE CODE ITSELF
-                          (INCLUDING NAME AND DATE) FOR ADDITIONAL DETAILS
+                          (INCLUDING NAME AND DATE) FOR ADDITIONAL DETAILS)
 Program Version #       : 1.2
 
 VERSION 1.0 (ORIGINAL VERSION):

@@ -15,10 +15,17 @@ Program Version #       : 1.0
 
 ======================================================================
 
-Copyright (c) 2016 Scott Bass (sas_l_739@yahoo.com.au)
+Scott Bass (sas_l_739@yahoo.com.au)
 
 This code is licensed under the Unlicense license.
 For more information, please refer to http://unlicense.org/UNLICENSE.
+
+This is free and unencumbered software released into the public domain.
+
+Anyone is free to copy, modify, publish, use, compile, sell, or
+distribute this software, either in source code form or as a compiled
+binary, for any purpose, commercial or non-commercial, and by any
+means.
 
 =======================================================================
 
@@ -49,7 +56,7 @@ proc sort;
   by name;
 run;
 
-%compare(base=base,compare=comp,by=name)
+%compare(base=base,comp=comp,by=name)
 
 Compares the base and compare datasets, reporting on differences for
 both variables and observations.
@@ -76,7 +83,7 @@ data lib_comp.class;
   end;
 run;
 
-%compare(base=lib_base, compare=lib_comp)
+%compare(base=lib_base, comp=lib_comp)
 
 libname lib_base;
 libname lib_comp;
@@ -99,7 +106,7 @@ proc copy inlib=sashelp outlib=lib_comp;
 run;
 
 * filter the library using prxmatch syntax ;
-%compare(base=lib_base, compare=lib_comp, filter=cla*|shoes)
+%compare(base=lib_base, comp=lib_comp, filter=cla*|shoes)
 
 libname lib_base;
 libname lib_comp;
@@ -144,11 +151,11 @@ shoes : region product subsidiary stores
 run;
 
 * use the keys dataset to do a sorted comparison ;
-%compare(base=lib_base, compare=lib_comp, by=keys)
+%compare(base=lib_base, comp=lib_comp, by=keys)
 
 * alternatively, specify the by variables on a per dataset basis ;
-%compare(base=lib_base.class, compare=lib_comp.class, by=name sex)
-%compare(base=lib_base.shoes, compare=lib_comp.shoes, by=region product subsidiary stores)
+%compare(base=lib_base.class, comp=lib_comp.class, by=name sex)
+%compare(base=lib_base.shoes, comp=lib_comp.shoes, by=region product subsidiary stores)
 
 libname lib_base;
 libname lib_comp;
@@ -195,7 +202,7 @@ run;
 PROC COMPARE either two datasets or two libraries
 --------------------------------------------------------------------*/
 (BASE=         /* Base dataset or library (REQ).                    */
-,COMPARE=      /* Compare dataset or library (REQ).                 */
+,COMP=         /* Compare dataset or library (REQ).                 */
 ,BY=           /* By variables that uniquely identify a record (Opt)*/
                /* This can be either an explicit list of variables  */
                /* for a dataset, or a metadata dataset              */
@@ -225,14 +232,14 @@ PROC COMPARE either two datasets or two libraries
 %let macro = &sysmacroname;
 
 %* check input parameters ;
-%parmv(BASE,          _req=1,_words=0,_case=U)
-%parmv(COMPARE,       _req=1,_words=0,_case=U)
-%parmv(BY,            _req=0,_words=1,_case=U)
+%parmv(BASE,          _req=1,_words=0,_case=N)
+%parmv(COMP,          _req=1,_words=0,_case=N)
+%parmv(BY,            _req=0,_words=1,_case=N)
 %parmv(FILTER,        _req=0,_words=1,_case=N)
 %parmv(CHECKOBS,      _req=0,_words=0,_case=U)
 %parmv(MAXPRINT,      _req=1,_words=1,_case=U)
 %parmv(CRITERION,     _req=1,_words=0,_case=U)
-%parmv(METHOD,         _req=1,_words=0,_case=U,_val=ABSOLUTE EXACT PERCENT RELATIVE)
+%parmv(METHOD,        _req=1,_words=0,_case=U,_val=ABSOLUTE EXACT PERCENT RELATIVE)
 
 %if (&parmerr) %then %goto quit;
 
@@ -244,12 +251,12 @@ PROC COMPARE either two datasets or two libraries
 %else
 %parmv(_msg=Either &base is not allocated or does not exist);
 
-%if (%sysfunc(exist(&compare,data))  eq 1 or
-     %sysfunc(exist(&compare,view))) eq 1 %then %let comp_type=DATA;
+%if (%sysfunc(exist(&comp,data))  eq 1 or
+     %sysfunc(exist(&comp,view))) eq 1 %then %let comp_type=DATA;
 %else
-%if (%sysfunc(libref(&compare)) eq 0) %then %let comp_type=LIB;
+%if (%sysfunc(libref(&comp)) eq 0) %then %let comp_type=LIB;
 %else
-%parmv(_msg=Either &compare is not allocated or does not exist);
+%parmv(_msg=Either &comp is not allocated or does not exist);
 
 %if (&parmerr) %then %goto quit;
 
@@ -263,8 +270,8 @@ PROC COMPARE either two datasets or two libraries
 %if (&parmerr) %then %goto quit;
 
 %* use SPDE work library for better performance ;
-%if (%sysfunc(libref(spdework)) ne 0) %then %do;
-libname spdework spde "%sysfunc(pathname(work))" temp=yes;
+%if (%sysfunc(libref(workspde)) ne 0) %then %do;
+libname workspde spde "%sysfunc(pathname(work))" temp=yes;
 %end;
 
 %* capture current value of obs option ;
@@ -278,7 +285,7 @@ libname spdework spde "%sysfunc(pathname(work))" temp=yes;
   options obs=max;
 
   proc sql noprint;
-    create table spdework.compare_libraries as
+    create table workspde.compare_libraries as
       select
          case when base.memname is null then 0 else 1 end as in_base
         ,case when comp.memname is null then 0 else 1 end as in_comp
@@ -312,7 +319,7 @@ libname spdework spde "%sysfunc(pathname(work))" temp=yes;
           from
             dictionary.tables
           where
-            libname="&compare"
+            libname="&comp"
         ) comp
       on
         upcase(base.memname)=upcase(comp.memname)
@@ -329,7 +336,7 @@ libname spdework spde "%sysfunc(pathname(work))" temp=yes;
     select
       base_memname into :datasets separated by " "
       from
-        spdework.compare_libraries
+        workspde.compare_libraries
       where
         in_base and in_comp
       ;
@@ -338,8 +345,8 @@ libname spdework spde "%sysfunc(pathname(work))" temp=yes;
   options obs=&obs;
 
   title;
-  title1 "Library comparison report between &base  and &compare  libraries";
-  proc report data=spdework.compare_libraries (obs=max) nowd;
+  title1 "Library comparison report between &base  and &comp  libraries";
+  proc report data=workspde.compare_libraries (obs=max) nowd;
     column
     ("_Flags_"    in_base in_comp matched)
     ("_Base_"     base_libname base_memname base_nobs)
@@ -367,7 +374,7 @@ libname spdework spde "%sysfunc(pathname(work))" temp=yes;
   %macro code;
     %compare(
       base=&base..&word
-      ,compare=&compare..&word
+      ,comp=&comp..&word
       ,by=&by
       ,filter=&filter
       ,checkobs=&checkobs
@@ -380,9 +387,9 @@ libname spdework spde "%sysfunc(pathname(work))" temp=yes;
 %end;
 %else
 %if (&type eq DATA) %then %do;
-  %* save values of &base and &compare for titles statement ;
+  %* save values of &base and &comp for titles statement ;
   %let base_title=&base;
-  %let compare_title=&compare;
+  %let comp_title=&comp;
 
   %* if BY parameter was specified, was it a metadata dataset? ;
   %if (&by ne ) %then %do;
@@ -418,7 +425,7 @@ libname spdework spde "%sysfunc(pathname(work))" temp=yes;
       retain dummy "";
     run;
 
-    proc sort data=work._temp_ out=spdework._base_ %if %varexist(work._temp_,loaddttm) %then (drop=loaddttm);;
+    proc sort data=work._temp_ out=workspde._base_ %if %varexist(work._temp_,loaddttm) %then (drop=loaddttm);;
       by &by;
     run;
 
@@ -427,24 +434,24 @@ libname spdework spde "%sysfunc(pathname(work))" temp=yes;
     %* put the BY variables at the beginning of the PDV ;
     data work._temp_/view=work._temp_;
       format &by dummy;
-      set &compare (obs=&obs);
+      set &comp (obs=&obs);
       retain dummy "";
     run;
 
-    proc sort data=work._temp_ out=spdework._comp_ %if %varexist(work._temp_,loaddttm) %then (drop=loaddttm);;
+    proc sort data=work._temp_ out=workspde._comp_ %if %varexist(work._temp_,loaddttm) %then (drop=loaddttm);;
       by &by;
     run;
 
     %kill(data=work._temp_)
 
-    %let base=spdework._base_;
-    %let compare=spdework._comp_;
+    %let base=workspde._base_;
+    %let comp=workspde._comp_;
 
-    data spdework.check;
+    data workspde.check;
       format in;
       merge
-        &base    (in=base keep=&by)
-        &compare (in=comp keep=&by)
+        &base (in=base keep=&by)
+        &comp (in=comp keep=&by)
       ;
       by &by;
       if base and comp then delete;
@@ -455,11 +462,11 @@ libname spdework spde "%sysfunc(pathname(work))" temp=yes;
   %else %do;
     %* no BY variables, so assume both datasets are in desired sort order ;
     %* interleave datasets (merge with no by statement) ;
-    data spdework.check;
+    data workspde.check;
       format in;
       merge
-        &base    (in=base keep=&by)
-        &compare (in=comp keep=&by)
+        &base (in=base keep=&by)
+        &comp (in=comp keep=&by)
       ;
       if base and comp then delete;
       if base then in="BASE record";
@@ -467,18 +474,18 @@ libname spdework spde "%sysfunc(pathname(work))" temp=yes;
     run;
   %end;
 
-  title1 "Comparison of &base_title  (base) to &compare_title  (compare) datasets";
+  title1 "Comparison of &base_title  (base) to &comp_title  (compare) datasets";
   title3 "Records not in both datasets";
   data _null_;
     if (nobs) then do;
-      put / "There are " nobs "records that are not shared between the &base and &compare datasets" /;
+      put / "There are " nobs "records that are not shared between the &base and &comp datasets" /;
     end;
     stop;
-    set spdework.check nobs=nobs;
+    set workspde.check nobs=nobs;
   run;
 
   %if (&checkobs eq %str( ) or &checkobs eq MAX or &checkobs gt 0) %then %do;
-    proc print data=spdework.check
+    proc print data=workspde.check
     %if (&checkobs ne ) %then
       (obs=&checkobs);
     %else
@@ -489,10 +496,10 @@ libname spdework spde "%sysfunc(pathname(work))" temp=yes;
   %end;
 
   %* now compare the two datasets themselves ;
-  title1 "Comparing &base_title  and &compare_title  datasets";
+  title1 "Comparing &base_title  and &comp_title  datasets";
   proc compare
     base=&base
-    compare=&compare
+    comp=&comp
     listbasevar
     listcompvar
     warning

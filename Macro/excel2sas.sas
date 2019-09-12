@@ -14,10 +14,17 @@ Program Version #       : 1.0
 
 =======================================================================
 
-Copyright (c) 2016 Scott Bass (sas_l_739@yahoo.com.au)
+Scott Bass (sas_l_739@yahoo.com.au)
 
 This code is licensed under the Unlicense license.
 For more information, please refer to http://unlicense.org/UNLICENSE.
+
+This is free and unencumbered software released into the public domain.
+
+Anyone is free to copy, modify, publish, use, compile, sell, or
+distribute this software, either in source code form or as a compiled
+binary, for any purpose, commercial or non-commercial, and by any
+means.
 
 =======================================================================
 
@@ -314,6 +321,8 @@ Windows processing...
    %* issue libname statement using excel engine ;
    libname _XCEL_ excel "&file" access=READONLY;
 
+   /* libname _XCEL_ xlsx "&file" access=READONLY; */
+
    %*---------------------------------------------------------------------
    Get a list of all sheet names.
    Filter out any print areas, etc.
@@ -435,8 +444,8 @@ UNIX processing...
 
    %if (&outdsn eq ) %then %do;
       %let outdsn=%sysfunc(translate(&word,%str(______),%str( ,#!-%%)));
-      %if (&lib ne ) %then %let outdsn=&lib..&outdsn;
    %end;
+   %if (&lib ne ) %then %let outdsn=&lib..&outdsn;
 
    %* make sure output dataset name is not too long ;
    %let outdsn = %substr(%str(&outdsn                                   ),1,32);

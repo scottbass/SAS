@@ -13,20 +13,32 @@ Program Version #       : 1.0
 
 =======================================================================
 
-Copyright (c) 2016 Scott Bass (sas_l_739@yahoo.com.au)
+Scott Bass (sas_l_739@yahoo.com.au)
 
 This code is licensed under the Unlicense license.
 For more information, please refer to http://unlicense.org/UNLICENSE.
 
+This is free and unencumbered software released into the public domain.
+
+Anyone is free to copy, modify, publish, use, compile, sell, or
+distribute this software, either in source code form or as a compiled
+binary, for any purpose, commercial or non-commercial, and by any
+means.
+
 =======================================================================
 
-Modification History    : 
+Modification History    : Original version
 
 Programmer              : Scott Bass
 Date                    : 30NOV2012
 Change/reason           : Changed to use SPDEWORK library for better
                           performance
 Program Version #       : 1.1
+
+Programmer              : Scott Bass
+Date                    : 13JUL2016
+Change/reason           : Added KEEP parameter 
+Program Version #       : 1.2
 
 =====================================================================*/
 
@@ -81,7 +93,7 @@ Only include records after 01JAN2007 in the format.
 %create_format(
     DATA=WORK.FOO
    ,NAME=cats("MY_",FMT)
-   ,TYPE=CHR FORMAT
+   ,TYPE=CHR_FORMAT
 )
 
 Create multiple formats from input dataset WORK.FOO.
@@ -178,6 +190,10 @@ Create a format from an input table
                /* ranges will be mapped to the "other" label.        */
                /* If value = _MISSING_, value is translated to the   */
                /* appropriate label for the format type.             */
+,KEEP= 
+               /* Additional variables to keep? (Opt)                */
+               /* Used with where processing to keep additional      */
+               /* variables used in the where claus.                 */
 ,WHERE=
                /* Where processing? (Opt).                           */
                /* If non-blank, only data matching the where clause  */
@@ -192,7 +208,7 @@ Create a format from an input table
                /* 0 and 1 respectively.                              */
 );
 
-%local macro parmerr other where name type;
+%local macro parmerr keep;
 %let macro = &sysmacroname;
 
 %* check input parameters ;
@@ -222,12 +238,13 @@ libname _crtfmt_ spde "%sysfunc(pathname(work))" temp=yes;
 %let cntlin=_crtfmt_._cntlin_;
 data &cntlin;
    format FMTNAME TYPE START END LABEL;
-/*
    attrib
       FMTNAME     length=$32     label="Format name"
       START       length=$200    label="Starting value for format"
       END         length=$200    label="Ending value for format"
       LABEL       length=$5000   label="Format value label"
+      TYPE        length=$1      label="Type of format"
+/*
       MIN         length=3       label="Minimum length"
       MAX         length=3       label="Maximum length"
       DEFAULT     length=3       label="Default length"
@@ -237,7 +254,6 @@ data &cntlin;
       MULT        length=8       label="Multiplier"
       FILL        length=$1      label="Fill character"
       NOEDIT      length=3       label="Is picture string noedit?"
-      TYPE        length=$1      label="Type of format"
       SEXCL       length=$1      label="Start exclusion"
       EEXCL       length=$1      label="End exclusion"
       HLO         length=$11     label="Additional information"
@@ -245,16 +261,19 @@ data &cntlin;
       DIGSEP      length=$1      label="Three-digit separator"
       DATATYPE    length=$8      label="Date/time/datetime?"
       LANGUAGE    length=$8      label="Language for date strings"
+*/
    ;
    if _n_=1 then call missing(of _all_);
-*/
 
    %* if the format name or label contains a left parentheses, assume it is a code fragment ;
    %* otherwise it is a hard coded format name or label ;
-   %if (%index(%superq(NAME),%str(%())) %then
+   %if (%index(%superq(NAME),%str(%())) %then %do;
       %let NAME = &NAME;
-   %else
+      %let keep=&keep %sysfunc(compress(&NAME,%str(%(%))));
+   %end;
+   %else %do;
       %let NAME = "&NAME";
+   %end;
 
    %if (&TYPE = CHR_FORMAT) %then
       %let type = C;
@@ -268,9 +287,15 @@ data &cntlin;
    %if (&TYPE = NUM_INFORMAT) %then
       %let type = I;
 
-   %if (%superq(END) eq ) %then %let END = &START;
+   %let keep=&keep &START;
+   %if (%superq(END) eq ) %then 
+      %let END = &START;
+   %else
+      %let keep=&keep &END;
 
-   set &DATA (keep=&start &end &label) end=_last_;
+   %let keep=&keep &LABEL;
+
+   set &DATA (keep=&keep) end=_last_;
 
    %if (%superq(WHERE) ne %str() ) %then %do;
       where &WHERE;
