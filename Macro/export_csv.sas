@@ -1,0 +1,106 @@
+/*=====================================================================
+Program Name            : export_csv.sas
+Purpose                 : Wrapper macro for the %export_dlm macro
+                          used to export a SAS dataset to a CSV file.
+SAS Version             : SAS 9.4
+Input Data              : SAS dataset
+Output Data             : CSV flat file
+
+Macros Called           : export_dlm, parmv
+
+Originally Written by   : Scott Bass
+Date                    : 04SEP2019
+Program Version #       : 1.0
+
+=======================================================================
+
+Copyright (c) 2016 Scott Bass (sas_l_739@yahoo.com.au)
+
+This code is licensed under the Unlicense license.
+For more information, please refer to http://unlicense.org/UNLICENSE.
+
+=======================================================================
+
+Modification History    : Original version
+
+=====================================================================*/
+
+/*---------------------------------------------------------------------
+Usage:
+
+See Usage in the %export_dlm macro header.
+
+-----------------------------------------------------------------------
+Notes:
+
+See Notes in the %export_dlm macro header.
+
+---------------------------------------------------------------------*/
+
+%macro export_csv
+/*---------------------------------------------------------------------
+Wrapper macro for the %export_dlm macro 
+used to export a SAS dataset to a CSV file.
+---------------------------------------------------------------------*/
+(DATA=         /* Dataset to export (REQ).                           */
+               /* Data set options, such as a where clause, may be   */
+               /* specified.                                         */
+,PATH=         /* Output directory or file path (REQ).               */
+               /* Either a properly quoted physical file             */
+               /* (single or double quotes), or an already allocated */
+               /* fileref may be specified.                          */
+,REPLACE=N     /* Replace output file? (Opt).                        */
+               /* Default value is NO.  Valid values are:            */
+               /* 0 1 OFF N NO F FALSE and ON Y YES T TRUE           */
+               /* OFF N NO F FALSE and ON Y YES T TRUE               */
+               /* (case insensitive) are acceptable aliases for      */
+               /* 0 and 1 respectively.                              */
+,LABEL=N       /* Use data set labels instead of names? (Opt).       */
+               /* Default value is NO.  Valid values are:            */
+               /* 0 1 OFF N NO F FALSE and ON Y YES T TRUE           */
+               /* OFF N NO F FALSE and ON Y YES T TRUE               */
+               /* (case insensitive) are acceptable aliases for      */
+               /* 0 and 1 respectively.                              */
+               /* If the data set variable does not have a label     */
+               /* then the variable name is used.                    */
+,HEADER=Y      /* Output a header row? (Opt).                        */
+               /* Default value is YES.  Valid values are:           */
+               /* 0 1 OFF N NO F FALSE and ON Y YES T TRUE           */
+               /* OFF N NO F FALSE and ON Y YES T TRUE               */
+               /* (case insensitive) are acceptable aliases for      */
+               /* 0 and 1 respectively.                              */
+               /* If the data set variable does not have a label     */
+               /* then the variable name is used.                    */
+,LRECL=32767   /* Logical record length for output file (Opt).       */
+               /* Default value is 32767 (32K)                       */
+);
+
+%local macro parmerr;
+%let macro = &sysmacroname;
+
+%* check input parameters ;
+%parmv(DATA,         _req=1,_words=1,_case=N)  /* words=1 allows multiple datasets */
+%parmv(PATH,         _req=1,_words=1,_case=N)
+%parmv(REPLACE,      _req=0,_words=0,_case=U,_val=0 1)
+%parmv(LABEL,        _req=0,_words=0,_case=U,_val=0 1)
+%parmv(HEADER,       _req=0,_words=0,_case=U,_val=0 1)
+%parmv(LRECL,        _req=0,_words=0,_case=U,_val=POSITIVE)
+
+%if (&parmerr) %then %return;
+
+%* call the %export_dlm macro with the correct parameters ;
+%* all further error trapping is done by the %export_dlm macro ;
+%export_dlm(
+   data=%superq(data)
+   ,path=%superq(path)
+   ,dbms=csv
+   ,replace=%superq(replace)
+   ,label=%superq(label)
+   ,header=%superq(header)
+   ,lrecl=%superq(lrecl)
+)
+
+%mend;
+
+/******* END OF FILE *******/
+
