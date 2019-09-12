@@ -28,7 +28,7 @@ Modification History    : Original version
 /*---------------------------------------------------------------------
 Usage:
 
-%let path=\\sascs\linkage\RL_content_snapshots\Temp;  %* edit to suit your requirements ;
+%let path=C:\Temp;  %* edit to suit your requirements ;
 
 %export_dbms(
    data=sashelp.class
