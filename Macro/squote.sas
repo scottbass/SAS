@@ -27,7 +27,8 @@ binary, for any purpose, commercial or non-commercial, and by any
 means.
 
 Based on original work by SAS Communities user "Tom".
-See https://communities.sas.com/t5/SAS-Communities-Library/Not-All-Macro-Language-Elements-Are-Supported-by-the-Macro/ta-p/223904
+https://communities.sas.com/t5/SAS-Communities-Library/Not-All-Macro-Language-Elements-Are-Supported-by-the-Macro/ta-p/223904
+Used with permission.
 
 =======================================================================
 

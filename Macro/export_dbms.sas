@@ -28,7 +28,7 @@ means.
 
 Approach to deleting .bak files that are created by PROC COPY 
 is derived from original ideas by SAS Communities user "LaurieF".
-See https://communities.sas.com/t5/SAS-Programming/Clean-bak-files-from-PROC-EXPORT/m-p/362602/highlight/true#M85677
+https://communities.sas.com/t5/SAS-Programming/Clean-bak-files-from-PROC-EXPORT/m-p/362602/highlight/true#M85677
 
 =======================================================================
 
