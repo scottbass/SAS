@@ -17,7 +17,7 @@ Program Version #       : 1.0
 Scott Bass (sas_l_739@yahoo.com.au)
 
 This code is licensed under the Unlicense license.
-For more information, please refer to http://unlicense.org/UNLICENSE. 
+For more information, please refer to http://unlicense.org/UNLICENSE.
 
 This is free and unencumbered software released into the public domain.
 
