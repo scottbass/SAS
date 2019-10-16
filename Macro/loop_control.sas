@@ -28,7 +28,12 @@ means.
 
 =======================================================================
 
-Modification History    : Original version
+Modification History    : 
+
+Programmer              : Scott Bass
+Date                    : 16OCT2019
+Change/reason           : Added __iter__ row counter.
+Program Version #       : 1.1
 
 =====================================================================*/
 
@@ -174,7 +179,7 @@ control table
 ,MNAME=code    /* Macro name (REQ).  Default is "%code"              */
 );
 
-%local macro parmerr _data_;
+%local macro parmerr __iter__ _data_;
 %let macro = &sysmacroname;
 
 %* check input parameters ;
@@ -209,8 +214,10 @@ control table
 
 %* iterate over the control dataset, calling the child macro for each record ;
 %* the macro variable names in the child macro must match the variable names in the control dataset ;
+%let __iter__ = 1;
 %do %while (%sysfunc(fetch(&dsid)) eq 0);
 %&mname
+%let __iter__ = %eval(&__iter__+1);
 %end;
 
 %* close the open control table ;
