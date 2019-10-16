@@ -126,6 +126,7 @@ Measures elapsed time between successive invocations.
                /* running metrics.  This parameter is ignored if     */
                /* DATA= is not specified.                            */
 ,PRINT=N       /* Print default metrics to log? (Opt).               */
+,DELETE=Y      /* Delete output dataset for running metrics? (Opt)   */
 );
 
 %local macro parmerr time_elapsed time_total time_elapsed_str time_total_str h m s;
@@ -136,6 +137,7 @@ Measures elapsed time between successive invocations.
 %parmv(DATA,         _req=0,_words=0,_case=N)
 %parmv(MESSAGE,      _req=0,_words=1,_case=N)
 %parmv(PRINT,        _req=0,_words=0,_case=U,_val=0 1)
+%parmv(DELETE,       _req=0,_words=0,_case=U,_val=0 1)
 
 %if (&parmerr) %then %return;
 
@@ -176,7 +178,7 @@ Measures elapsed time between successive invocations.
    %let _elapsed  = &_start;
 
    %* If DATA= was specified then delete existing dataset ;
-   %if (&data ne ) %then %do;
+   %if (&delete and &data ne ) %then %do;
       %if (%sysfunc(exist(&data))) %then %do;
          proc delete data=&data;
          run;
@@ -201,23 +203,23 @@ Measures elapsed time between successive invocations.
                output;
                if eof then do;
                   %* do not reorder these lines ;
+                  message="&message";
                   start=&_start;
                   elapsed=&_elapsed-current;
                   current=&_elapsed;
                   total=total+elapsed;
-                  message="&message";
                   output;
                end;
             run;
          %end;
          %else %do;
             data &data;
-               length start current elapsed total 8 message $200;
+               length  message $200 start current elapsed total 8;
+               message="&message";
                start=&_start;
                current=&_elapsed;
                elapsed=current-start;
                total=elapsed;
-               message="&message";
                format start current datetime.;
             run;
          %end;

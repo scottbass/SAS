@@ -26,6 +26,7 @@ binary, for any purpose, commercial or non-commercial, and by any
 means.
 
 Based on original work by Richard Devenezia.
+http://www.devenezia.com/downloads/sas/macros/index.php?m=seplist
 Used with permission.
 
 =======================================================================
