@@ -9,7 +9,7 @@ Output Data             : SAS output dataset
 Macros Called           : parmv, seplist
 
 This macro is based on original work by 
-Francis J. (Joe) Berrey documented in the SUGI paper
+Francis Joseph (Joe) Kelley documented in the SUGI paper
 https://support.sas.com/resources/papers/proceedings/proceedings/sugi23/Posters/p177.pdf
 
 Permission has been granted by Joe to use his original ideas for this macro.
